@@ -1,0 +1,76 @@
+name: Smoke
+
+on:
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Specific version to install (defaults to latest)
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    name: Install + import (${{ matrix.os }} / Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Wait for npm registry to index
+        if: github.event_name == 'workflow_run'
+        run: sleep 30
+        shell: bash
+
+      - name: Install
+        shell: bash
+        run: |
+          mkdir smoke && cd smoke
+          npm init -y >/dev/null
+          if [ -n "${{ inputs.version }}" ]; then
+            npm install "@cryptflare/sdk@${{ inputs.version }}"
+          else
+            npm install "@cryptflare/sdk@latest"
+          fi
+
+      - name: Verify import + exports
+        shell: bash
+        working-directory: smoke
+        run: |
+          cat > verify.mjs <<'EOF'
+          import { CryptFlare } from '@cryptflare/sdk';
+
+          if (typeof CryptFlare !== 'function') {
+            throw new Error('CryptFlare export is not a constructor');
+          }
+
+          const c = new CryptFlare({ token: 'sm_smoke_test_token', baseUrl: 'http://127.0.0.1:1' });
+
+          if (typeof c.secrets?.list !== 'function') {
+            throw new Error('client.secrets.list is missing');
+          }
+
+          try {
+            await c.secrets.list({ pod: 'p', environment: 'e' });
+            throw new Error('expected network error, got success');
+          } catch (err) {
+            const msg = String(err?.message || err);
+            if (!/ECONNREFUSED|fetch failed|network|connect|ENOTFOUND/i.test(msg)) {
+              throw new Error('unexpected error: ' + msg);
+            }
+          }
+
+          console.log('smoke OK');
+          EOF
+          node verify.mjs
