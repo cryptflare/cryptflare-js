@@ -1,0 +1,99 @@
+{
+  "name": "@cryptflare/sdk",
+  "version": "0.3.0",
+  "description": "Official TypeScript / JavaScript SDK for the CryptFlare API",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Sacha Roussakis-Notter",
+    "email": "support@cryptflare.com",
+    "url": "https://cryptflare.com"
+  },
+  "homepage": "https://cryptflare.com/sdk/typescript",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cryptflare/cryptflare-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cryptflare/cryptflare-js/issues"
+  },
+  "keywords": [
+    "cryptflare",
+    "secrets",
+    "secrets-management",
+    "vault",
+    "sdk",
+    "typescript"
+  ],
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./browser": "./src/browser.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "typecheck:tests": "tsc --noEmit -p tsconfig.test.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "smoke": "tsx --env-file=.env scripts/smoke.ts",
+    "rotate": "tsx --env-file=.env scripts/rotate-token.ts",
+    "codegen": "tsx scripts/codegen.ts"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "import": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.js"
+        },
+        "require": {
+          "types": "./dist/index.d.cts",
+          "default": "./dist/index.cjs"
+        }
+      },
+      "./browser": {
+        "import": {
+          "types": "./dist/browser.d.ts",
+          "default": "./dist/browser.js"
+        },
+        "require": {
+          "types": "./dist/browser.d.cts",
+          "default": "./dist/browser.cjs"
+        }
+      }
+    }
+  },
+  "peerDependencies": {
+    "zod": "^3.20.0 || ^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "zod": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@vitest/coverage-v8": "^4.1.5",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.3",
+    "zod": "^3.24.0"
+  }
+}

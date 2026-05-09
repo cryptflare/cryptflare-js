@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false
+  },
+  "include": ["src", "tests", "scripts"]
+}
