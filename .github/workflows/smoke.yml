@@ -55,18 +55,38 @@ jobs:
             throw new Error('CryptFlare export is not a constructor');
           }
 
-          const c = new CryptFlare({ token: 'sm_smoke_test_token', baseUrl: 'http://127.0.0.1:1' });
+          // The SDK constructor requires apiKey OR serviceToken OR getToken.
+          // We pass a dummy apiKey + an unreachable baseUrl so the client
+          // builds without errors but any network call fails fast.
+          const c = new CryptFlare({
+            apiKey: 'cf_live_smoke_test_apikey',
+            baseUrl: 'http://127.0.0.1:1',
+            defaults: {
+              organisation: 'org_smoke',
+              workspace: 'wsp_smoke',
+              environment: 'env_smoke',
+            },
+            maxRetries: 0,
+            timeoutMs: 1000,
+          });
 
           if (typeof c.secrets?.list !== 'function') {
             throw new Error('client.secrets.list is missing');
           }
 
+          // Reach far enough into the runtime to confirm the resource fan-out
+          // is wired up. We expect a network failure - the test passes when
+          // the error is a transport error and not a configuration error or
+          // missing-export error.
           try {
-            await c.secrets.list({ pod: 'p', environment: 'e' });
+            await c.secrets.list({ pod: 'pod_smoke' });
             throw new Error('expected network error, got success');
           } catch (err) {
             const msg = String(err?.message || err);
-            if (!/ECONNREFUSED|fetch failed|network|connect|ENOTFOUND/i.test(msg)) {
+            if (/configuration_error|configuration error/i.test(msg)) {
+              throw new Error('unexpected configuration error: ' + msg);
+            }
+            if (!/ECONNREFUSED|fetch failed|network|connect|ENOTFOUND|timeout|aborted/i.test(msg)) {
               throw new Error('unexpected error: ' + msg);
             }
           }
