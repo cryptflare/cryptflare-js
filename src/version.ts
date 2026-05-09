@@ -3,4 +3,4 @@
  * header on every request and re-exported as `version` from the public
  * barrel. Bumped via changesets when the SDK ships a release.
  */
-export const VERSION = '0.3.0';
+export const VERSION = '0.3.1';
