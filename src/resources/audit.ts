@@ -54,6 +54,24 @@ export class Audit extends APIResource {
   }
 
   /**
+   * POST /v1/organisations/:org/audit/export - downloads the audit log
+   * window as a JSON Lines stream. Returns the response body as a
+   * ReadableStream<Uint8Array> the caller can pipe to disk or iterate
+   * line-by-line. Throttled server-side to one export per hour per org.
+   */
+  async export(
+    input: OrgInput & { startDate: string; endDate: string },
+    options?: RequestOptions,
+  ): Promise<ReadableStream<Uint8Array>> {
+    const org = this.resolveOrg(input);
+    return this.requestStream({
+      method: 'POST',
+      path: `${base(org)}/export`,
+      query: { startDate: input.startDate, endDate: input.endDate },
+    }, options);
+  }
+
+  /**
    * GET /v1/organisations/:org/audit/stream - SSE stream of audit events.
    * Iterates lazily; aborting `options.signal` closes the connection.
    */

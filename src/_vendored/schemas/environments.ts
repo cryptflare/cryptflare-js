@@ -416,6 +416,87 @@ export declare const ResolvePathResponseSchema: z.ZodObject<{
         } | null;
     };
 }>;
+export declare const EnvironmentListResponseSchema: z.ZodObject<{
+    data: z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        workspace_id: z.ZodString;
+        name: z.ZodString;
+        slug: z.ZodString;
+        created_at: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        created_at: string;
+        id: string;
+        name: string;
+        slug: string;
+        workspace_id: string;}, {
+        created_at: string;
+        id: string;
+        name: string;
+        slug: string;
+        workspace_id: string;}>, "many">;
+}, "strip", z.ZodTypeAny, {
+    data: {
+        name: string;
+        id: string;
+        created_at: string;
+        slug: string;
+        workspace_id: string;
+    }[];
+}, {
+    data: {
+        name: string;
+        id: string;
+        created_at: string;
+        slug: string;
+        workspace_id: string;
+    }[];
+}>;
+export declare const EnvironmentResponseSchema: z.ZodObject<{
+    data: z.ZodObject<{
+        id: z.ZodString;
+        workspace_id: z.ZodString;
+        name: z.ZodString;
+        slug: z.ZodString;
+        created_at: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        created_at: string;
+        id: string;
+        name: string;
+        slug: string;
+        workspace_id: string;}, {
+        created_at: string;
+        id: string;
+        name: string;
+        slug: string;
+        workspace_id: string;}>;
+}, "strip", z.ZodTypeAny, {
+    data: {
+        name: string;
+        id: string;
+        created_at: string;
+        slug: string;
+        workspace_id: string;
+    };
+}, {
+    data: {
+        name: string;
+        id: string;
+        created_at: string;
+        slug: string;
+        workspace_id: string;
+    };
+}>;
+export declare const DeleteEnvironmentResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+    pending: z.ZodOptional<z.ZodBoolean>;
+    message: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    message?: string | undefined;
+    pending?: boolean | undefined;
+    success: boolean;}, {
+    message?: string | undefined;
+    pending?: boolean | undefined;
+    success: boolean;}>;
 export type CreateEnvironmentBody = z.infer<typeof CreateEnvironmentBodySchema>;
 export type EnvironmentItem = z.infer<typeof EnvironmentItemSchema>;
 export type ResolvedPodPayload = z.infer<typeof ResolvedPodPayloadSchema>;

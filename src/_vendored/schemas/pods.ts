@@ -77,6 +77,247 @@ export declare const PodAncestorSchema: z.ZodObject<{
     name: string;
     parentId: string | null;
     slug: string;}>;
+export declare const PodListResponseSchema: z.ZodObject<{
+    data: z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        environmentId: z.ZodString;
+        parentId: z.ZodNullable<z.ZodString>;
+        name: z.ZodString;
+        slug: z.ZodString;
+        description: z.ZodNullable<z.ZodString>;
+        createdBy: z.ZodString;
+        createdByName: z.ZodNullable<z.ZodString>;
+        createdByEmail: z.ZodNullable<z.ZodString>;
+        createdAt: z.ZodString;
+        updatedAt: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        createdAt: string;
+        createdBy: string;
+        createdByEmail: string | null;
+        createdByName: string | null;
+        description: string | null;
+        environmentId: string;
+        id: string;
+        name: string;
+        parentId: string | null;
+        slug: string;
+        updatedAt: string;}, {
+        createdAt: string;
+        createdBy: string;
+        createdByEmail: string | null;
+        createdByName: string | null;
+        description: string | null;
+        environmentId: string;
+        id: string;
+        name: string;
+        parentId: string | null;
+        slug: string;
+        updatedAt: string;}>, "many">;
+}, "strip", z.ZodTypeAny, {
+    data: {
+        description: string | null;
+        name: string;
+        id: string;
+        createdAt: string;
+        slug: string;
+        environmentId: string;
+        parentId: string | null;
+        updatedAt: string;
+        createdBy: string;
+        createdByName: string | null;
+        createdByEmail: string | null;
+    }[];
+}, {
+    data: {
+        description: string | null;
+        name: string;
+        id: string;
+        createdAt: string;
+        slug: string;
+        environmentId: string;
+        parentId: string | null;
+        updatedAt: string;
+        createdBy: string;
+        createdByName: string | null;
+        createdByEmail: string | null;
+    }[];
+}>;
+export declare const PodResponseSchema: z.ZodObject<{
+    data: z.ZodObject<{
+        id: z.ZodString;
+        environmentId: z.ZodString;
+        parentId: z.ZodNullable<z.ZodString>;
+        name: z.ZodString;
+        slug: z.ZodString;
+        description: z.ZodNullable<z.ZodString>;
+        createdBy: z.ZodString;
+        createdByName: z.ZodNullable<z.ZodString>;
+        createdByEmail: z.ZodNullable<z.ZodString>;
+        createdAt: z.ZodString;
+        updatedAt: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        createdAt: string;
+        createdBy: string;
+        createdByEmail: string | null;
+        createdByName: string | null;
+        description: string | null;
+        environmentId: string;
+        id: string;
+        name: string;
+        parentId: string | null;
+        slug: string;
+        updatedAt: string;}, {
+        createdAt: string;
+        createdBy: string;
+        createdByEmail: string | null;
+        createdByName: string | null;
+        description: string | null;
+        environmentId: string;
+        id: string;
+        name: string;
+        parentId: string | null;
+        slug: string;
+        updatedAt: string;}>;
+}, "strip", z.ZodTypeAny, {
+    data: {
+        description: string | null;
+        name: string;
+        id: string;
+        createdAt: string;
+        slug: string;
+        environmentId: string;
+        parentId: string | null;
+        updatedAt: string;
+        createdBy: string;
+        createdByName: string | null;
+        createdByEmail: string | null;
+    };
+}, {
+    data: {
+        description: string | null;
+        name: string;
+        id: string;
+        createdAt: string;
+        slug: string;
+        environmentId: string;
+        parentId: string | null;
+        updatedAt: string;
+        createdBy: string;
+        createdByName: string | null;
+        createdByEmail: string | null;
+    };
+}>;
+export declare const PodWithAncestorsResponseSchema: z.ZodObject<{
+    data: z.ZodObject<{
+        id: z.ZodString;
+        environmentId: z.ZodString;
+        parentId: z.ZodNullable<z.ZodString>;
+        name: z.ZodString;
+        slug: z.ZodString;
+        description: z.ZodNullable<z.ZodString>;
+        createdBy: z.ZodString;
+        createdByName: z.ZodNullable<z.ZodString>;
+        createdByEmail: z.ZodNullable<z.ZodString>;
+        createdAt: z.ZodString;
+        updatedAt: z.ZodString;
+    } & {
+        ancestors: z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            name: z.ZodString;
+            slug: z.ZodString;
+            parentId: z.ZodNullable<z.ZodString>;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            name: string;
+            parentId: string | null;
+            slug: string;}, {
+            id: string;
+            name: string;
+            parentId: string | null;
+            slug: string;}>, "many">;
+    }, "strip", z.ZodTypeAny, {
+        ancestors: {
+            name: string;
+            id: string;
+            slug: string;
+            parentId: string | null;
+        }[];
+        createdAt: string;
+        createdBy: string;
+        createdByEmail: string | null;
+        createdByName: string | null;
+        description: string | null;
+        environmentId: string;
+        id: string;
+        name: string;
+        parentId: string | null;
+        slug: string;
+        updatedAt: string;}, {
+        ancestors: {
+            name: string;
+            id: string;
+            slug: string;
+            parentId: string | null;
+        }[];
+        createdAt: string;
+        createdBy: string;
+        createdByEmail: string | null;
+        createdByName: string | null;
+        description: string | null;
+        environmentId: string;
+        id: string;
+        name: string;
+        parentId: string | null;
+        slug: string;
+        updatedAt: string;}>;
+}, "strip", z.ZodTypeAny, {
+    data: {
+        description: string | null;
+        name: string;
+        id: string;
+        createdAt: string;
+        slug: string;
+        environmentId: string;
+        parentId: string | null;
+        ancestors: {
+            name: string;
+            id: string;
+            slug: string;
+            parentId: string | null;
+        }[];
+        updatedAt: string;
+        createdBy: string;
+        createdByName: string | null;
+        createdByEmail: string | null;
+    };
+}, {
+    data: {
+        description: string | null;
+        name: string;
+        id: string;
+        createdAt: string;
+        slug: string;
+        environmentId: string;
+        parentId: string | null;
+        ancestors: {
+            name: string;
+            id: string;
+            slug: string;
+            parentId: string | null;
+        }[];
+        updatedAt: string;
+        createdBy: string;
+        createdByName: string | null;
+        createdByEmail: string | null;
+    };
+}>;
+export declare const PodSuccessResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+}, "strip", z.ZodTypeAny, {
+    success: boolean;
+}, {
+    success: boolean;
+}>;
 export type PodItem = z.infer<typeof PodItemSchema>;
 export type CreatePodBody = z.infer<typeof CreatePodBodySchema>;
 export type UpdatePodBody = z.infer<typeof UpdatePodBodySchema>;

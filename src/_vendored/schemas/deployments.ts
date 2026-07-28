@@ -34,6 +34,16 @@ export declare const UpdateDeploymentBodySchema: z.ZodObject<{
     resourcesDeleted?: number | undefined;
     resourcesUpdated?: number | undefined;
     status: "rolled_back" | "completed" | "failed" | "running";}>;
+export declare const DeploymentStatusFilterSchema: z.ZodEnum<["running", "completed", "failed", "rolled_back"]>;
+export declare const DeploymentProviderFilterSchema: z.ZodEnum<["terraform", "pulumi", "custom"]>;
+export declare const ListDeploymentsFilterFieldsSchema: z.ZodObject<{
+    status: z.ZodOptional<z.ZodEnum<["running", "completed", "failed", "rolled_back"]>>;
+    provider: z.ZodOptional<z.ZodEnum<["terraform", "pulumi", "custom"]>>;
+}, "strip", z.ZodTypeAny, {
+    provider?: "custom" | "terraform" | "pulumi" | undefined;
+    status?: "rolled_back" | "completed" | "failed" | "running" | undefined;}, {
+    provider?: "custom" | "terraform" | "pulumi" | undefined;
+    status?: "rolled_back" | "completed" | "failed" | "running" | undefined;}>;
 export type StartDeploymentBody = z.infer<typeof StartDeploymentBodySchema>;
 export type UpdateDeploymentBody = z.infer<typeof UpdateDeploymentBodySchema>;
 //# sourceMappingURL=deployments.d.ts.map

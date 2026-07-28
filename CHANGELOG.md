@@ -1,5 +1,34 @@
 # @cryptflare/sdk
 
+## 0.4.0
+
+### Minor Changes
+
+- 8fb25cf: Expose access-token IP allowlist on the TypeScript SDK and CLI.
+  - `tokens.create` and `tokens.update` accept an optional `ipAllowlist?: string[]` (max 50 entries; IPv4 / IPv6 addresses or CIDR blocks). Requests from outside the list are rejected with `403 ACCESS_TOKEN_IP_BLOCKED`.
+  - `tokens.update` accepts `ipAllowlist: null` to clear an existing allowlist; omitting the field leaves it unchanged.
+  - New CLI flag `cf token create --ip-allow=10.0.0.0/8,203.0.113.5,...` (comma-separated). `cf token list` shows the allowlist size per token.
+
+  Mirrors the long-standing service-token allowlist behaviour for personal access tokens.
+
+- cfe749b: `audit.export(...)` SDK method + `cf audit export` CLI command.
+
+  ```ts
+  const stream = await client.audit.export({
+    startDate: "2026-04-01T00:00:00Z",
+    endDate: "2026-04-30T23:59:59Z",
+  });
+  // stream is a ReadableStream<Uint8Array> of JSON Lines.
+  ```
+
+  ```bash
+  cf audit export --start 2026-04-01T00:00:00Z --end 2026-04-30T23:59:59Z --file audit-april.jsonl
+  ```
+
+  Streams the API's `POST /v1/organisations/:org/audit/export` JSON Lines response directly to disk (or stdout when `--file -`). No buffering, so memory stays flat for arbitrarily large exports up to the server's 100 000-row + 366-day caps. Throttled server-side to one request per hour per organisation.
+
+  Closes the audit-export loop end to end (API endpoint shipped previously).
+
 ## 0.3.0
 
 ### Minor Changes

@@ -96,8 +96,23 @@ export declare const SlugAvailabilityResponseSchema: z.ZodObject<{
 }, {
     available: boolean;
 }>;
+export declare const OnboardingCheckoutInputSchema: z.ZodObject<{
+    plan: z.ZodEnum<["pro", "team"]>;
+}, "strip", z.ZodTypeAny, {
+    plan: "pro" | "team";
+}, {
+    plan: "pro" | "team";
+}>;
+export declare const VerifyOnboardingCheckoutInputSchema: z.ZodObject<{
+    sessionId: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    sessionId: string;
+}, {
+    sessionId: string;
+}>;
 export type OnboardingStateResponse = z.infer<typeof OnboardingStateResponseSchema>;
 export type UpdateOnboardingBody = z.infer<typeof UpdateOnboardingBodySchema>;
 export type CompleteOnboardingResponse = z.infer<typeof CompleteOnboardingResponseSchema>;
 export type SlugAvailabilityResponse = z.infer<typeof SlugAvailabilityResponseSchema>;
+export type OnboardingCheckoutInput = z.infer<typeof OnboardingCheckoutInputSchema>;
 //# sourceMappingURL=onboarding.d.ts.map

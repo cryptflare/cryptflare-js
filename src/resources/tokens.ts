@@ -10,18 +10,36 @@ export class Tokens extends APIResource {
     return this.requestData({ method: 'GET', path: base(this.resolveOrg(input)) }, options);
   }
 
-  create(input: OrgInput & { name: string; scopes: string[]; expiresAt?: string }, options?: RequestOptions): Promise<unknown> {
+  create(input: OrgInput & {
+    name: string;
+    scopes: string[];
+    expiresAt?: string;
+    /**
+     * Optional IPv4 / IPv6 / CIDR allowlist (max 50 entries). Requests
+     * from outside the list are rejected with 403 ACCESS_TOKEN_IP_BLOCKED.
+     * Omit or pass an empty array for no restriction.
+     */
+    ipAllowlist?: string[];
+  }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
     const body: Record<string, unknown> = { name: input.name, scopes: input.scopes };
     if (input.expiresAt !== undefined) body['expiresAt'] = input.expiresAt;
+    if (input.ipAllowlist !== undefined) body['ipAllowlist'] = input.ipAllowlist;
     return this.requestData({ method: 'POST', path: base(org), body }, options);
   }
 
-  update(input: OrgInput & { tokenId: string; name?: string; scopes?: string[] }, options?: RequestOptions): Promise<unknown> {
+  update(input: OrgInput & {
+    tokenId: string;
+    name?: string;
+    scopes?: string[];
+    /** Pass null to clear an existing allowlist; omit to leave unchanged. */
+    ipAllowlist?: string[] | null;
+  }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
     const body: Record<string, unknown> = {};
     if (input.name !== undefined) body['name'] = input.name;
     if (input.scopes !== undefined) body['scopes'] = input.scopes;
+    if (input.ipAllowlist !== undefined) body['ipAllowlist'] = input.ipAllowlist;
     return this.requestData({ method: 'PATCH', path: `${base(org)}/${enc(input.tokenId)}`, body }, options);
   }
 

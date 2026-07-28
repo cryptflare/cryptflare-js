@@ -58,6 +58,93 @@ export declare const MemberRecordSchema: z.ZodObject<{
     organisation_id: string;
     role: string;
     user_id: string;}>;
+export declare const MemberListResponseSchema: z.ZodObject<{
+    data: z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        userId: z.ZodString;
+        email: z.ZodString;
+        name: z.ZodNullable<z.ZodString>;
+        avatarUrl: z.ZodNullable<z.ZodString>;
+        role: z.ZodString;
+        joinedAt: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        avatarUrl: string | null;
+        email: string;
+        id: string;
+        joinedAt: string;
+        name: string | null;
+        role: string;
+        userId: string;}, {
+        avatarUrl: string | null;
+        email: string;
+        id: string;
+        joinedAt: string;
+        name: string | null;
+        role: string;
+        userId: string;}>, "many">;
+}, "strip", z.ZodTypeAny, {
+    data: {
+        name: string | null;
+        email: string;
+        role: string;
+        id: string;
+        userId: string;
+        avatarUrl: string | null;
+        joinedAt: string;
+    }[];
+}, {
+    data: {
+        name: string | null;
+        email: string;
+        role: string;
+        id: string;
+        userId: string;
+        avatarUrl: string | null;
+        joinedAt: string;
+    }[];
+}>;
+export declare const MemberRecordResponseSchema: z.ZodObject<{
+    data: z.ZodObject<{
+        id: z.ZodString;
+        organisation_id: z.ZodString;
+        user_id: z.ZodString;
+        role: z.ZodString;
+        created_at: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        created_at: string;
+        id: string;
+        organisation_id: string;
+        role: string;
+        user_id: string;}, {
+        created_at: string;
+        id: string;
+        organisation_id: string;
+        role: string;
+        user_id: string;}>;
+}, "strip", z.ZodTypeAny, {
+    data: {
+        role: string;
+        id: string;
+        organisation_id: string;
+        created_at: string;
+        user_id: string;
+    };
+}, {
+    data: {
+        role: string;
+        id: string;
+        organisation_id: string;
+        created_at: string;
+        user_id: string;
+    };
+}>;
+export declare const MemberSuccessResponseSchema: z.ZodObject<{
+    success: z.ZodBoolean;
+}, "strip", z.ZodTypeAny, {
+    success: boolean;
+}, {
+    success: boolean;
+}>;
 export type MemberItem = z.infer<typeof MemberItemSchema>;
 export type InviteBody = z.infer<typeof InviteBodySchema>;
 export type ChangeRoleBody = z.infer<typeof ChangeRoleBodySchema>;

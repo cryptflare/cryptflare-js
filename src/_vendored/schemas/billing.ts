@@ -314,6 +314,15 @@ export declare const ChangePlanResponseSchema: z.ZodObject<{
     downgraded?: boolean | undefined;
     upgraded?: boolean | undefined;
     url: string | null;}>;
+export declare const PurchaseAddonInputSchema: z.ZodObject<{
+    addonType: z.ZodEnum<[string, ...string[]]>;
+    quantity: z.ZodNumber;
+}, "strip", z.ZodTypeAny, {
+    addonType: string;
+    quantity: number;}, {
+    addonType: string;
+    quantity: number;}>;
+export type PurchaseAddonInput = z.infer<typeof PurchaseAddonInputSchema>;
 export type CheckoutBody = z.infer<typeof CheckoutBodySchema>;
 export type ConfirmSessionBody = z.infer<typeof ConfirmSessionBodySchema>;
 export type ConfirmSessionResponse = z.infer<typeof ConfirmSessionResponseSchema>;

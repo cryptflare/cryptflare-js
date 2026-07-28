@@ -645,9 +645,59 @@ export declare const TeamPolicyResponseSchema: z.ZodObject<{
         team_id: string;
     };
 }>;
+export declare const CreateTeamInputSchema: z.ZodObject<{
+    name: z.ZodString;
+    slug: z.ZodString;
+    description: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    description?: string | undefined;
+    name: string;
+    slug: string;}, {
+    description?: string | undefined;
+    name: string;
+    slug: string;}>;
+export declare const UpdateTeamInputSchema: z.ZodObject<{
+    name: z.ZodOptional<z.ZodString>;
+    slug: z.ZodOptional<z.ZodString>;
+    description: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+}, "strip", z.ZodTypeAny, {
+    description?: string | null | undefined;
+    name?: string | undefined;
+    slug?: string | undefined;}, {
+    description?: string | null | undefined;
+    name?: string | undefined;
+    slug?: string | undefined;}>;
+export declare const AddTeamMemberInputSchema: z.ZodObject<{
+    email: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    email: string;
+}, {
+    email: string;
+}>;
+export declare const CreateTeamPolicyInputSchema: z.ZodObject<{
+    resourceType: z.ZodEnum<["workspace", "environment", "pod"]>;
+    resourceId: z.ZodString;
+    permissions: z.ZodArray<z.ZodString, "many">;
+    effect: z.ZodEnum<["allow", "deny"]>;
+    conditions: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+}, "strip", z.ZodTypeAny, {
+    conditions?: Record<string, unknown> | undefined;
+    effect: "allow" | "deny";
+    permissions: string[];
+    resourceId: string;
+    resourceType: "workspace" | "environment" | "pod";}, {
+    conditions?: Record<string, unknown> | undefined;
+    effect: "allow" | "deny";
+    permissions: string[];
+    resourceId: string;
+    resourceType: "workspace" | "environment" | "pod";}>;
 export type TeamListItem = z.infer<typeof TeamListItemSchema>;
 export type Team = z.infer<typeof TeamSchema>;
 export type TeamMember = z.infer<typeof TeamMemberSchema>;
 export type TeamPolicy = z.infer<typeof TeamPolicySchema>;
 export type TeamMemberRow = z.infer<typeof TeamMemberRowSchema>;
+export type CreateTeamInput = z.infer<typeof CreateTeamInputSchema>;
+export type UpdateTeamInput = z.infer<typeof UpdateTeamInputSchema>;
+export type AddTeamMemberInput = z.infer<typeof AddTeamMemberInputSchema>;
+export type CreateTeamPolicyInput = z.infer<typeof CreateTeamPolicyInputSchema>;
 //# sourceMappingURL=teams.d.ts.map

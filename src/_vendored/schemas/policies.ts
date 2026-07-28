@@ -746,8 +746,12 @@ export declare const AccessGrantSchema: z.ZodObject<{
     granted_by: z.ZodString;
     expires_at: z.ZodString;
     revoked_at: z.ZodNullable<z.ZodString>;
+    confirmation_method: z.ZodNullable<z.ZodEnum<["totp"]>>;
+    confirmed_at: z.ZodNullable<z.ZodString>;
     created_at: z.ZodString;
 }, "strip", z.ZodTypeAny, {
+    confirmation_method: "totp" | null;
+    confirmed_at: string | null;
     created_at: string;
     expires_at: string;
     granted_by: string;
@@ -759,6 +763,8 @@ export declare const AccessGrantSchema: z.ZodObject<{
     resource_type: "workspace" | "environment" | "pod";
     revoked_at: string | null;
     user_id: string;}, {
+    confirmation_method: "totp" | null;
+    confirmed_at: string | null;
     created_at: string;
     expires_at: string;
     granted_by: string;
@@ -770,6 +776,26 @@ export declare const AccessGrantSchema: z.ZodObject<{
     resource_type: "workspace" | "environment" | "pod";
     revoked_at: string | null;
     user_id: string;}>;
+export declare const ApproveAccessRequestInputSchema: z.ZodObject<{
+    confirmation: z.ZodOptional<z.ZodObject<{
+        method: z.ZodLiteral<"totp">;
+        code: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        code: string;
+        method: "totp";}, {
+        code: string;
+        method: "totp";}>>;
+}, "strip", z.ZodTypeAny, {
+    confirmation?: {
+        code: string;
+        method: "totp";
+    } | undefined;
+}, {
+    confirmation?: {
+        code: string;
+        method: "totp";
+    } | undefined;
+}>;
 export declare const AccessGrantListResponseSchema: z.ZodObject<{
     data: z.ZodArray<z.ZodObject<{
         id: z.ZodString;
@@ -782,8 +808,12 @@ export declare const AccessGrantListResponseSchema: z.ZodObject<{
         granted_by: z.ZodString;
         expires_at: z.ZodString;
         revoked_at: z.ZodNullable<z.ZodString>;
+        confirmation_method: z.ZodNullable<z.ZodEnum<["totp"]>>;
+        confirmed_at: z.ZodNullable<z.ZodString>;
         created_at: z.ZodString;
     }, "strip", z.ZodTypeAny, {
+        confirmation_method: "totp" | null;
+        confirmed_at: string | null;
         created_at: string;
         expires_at: string;
         granted_by: string;
@@ -795,6 +825,8 @@ export declare const AccessGrantListResponseSchema: z.ZodObject<{
         resource_type: "workspace" | "environment" | "pod";
         revoked_at: string | null;
         user_id: string;}, {
+        confirmation_method: "totp" | null;
+        confirmed_at: string | null;
         created_at: string;
         expires_at: string;
         granted_by: string;
@@ -820,6 +852,8 @@ export declare const AccessGrantListResponseSchema: z.ZodObject<{
         granted_by: string;
         expires_at: string;
         revoked_at: string | null;
+        confirmation_method: "totp" | null;
+        confirmed_at: string | null;
     }[];
     total: number;}, {
     data: {
@@ -834,6 +868,8 @@ export declare const AccessGrantListResponseSchema: z.ZodObject<{
         granted_by: string;
         expires_at: string;
         revoked_at: string | null;
+        confirmation_method: "totp" | null;
+        confirmed_at: string | null;
     }[];
     total: number;}>;
 export declare const PolicyTemplateSchema: z.ZodObject<{
@@ -1144,10 +1180,268 @@ export declare const AppliedTemplateCountsResponseSchema: z.ZodObject<{
 }, {
     data: Record<string, number>;
 }>;
+export declare const CreateGlobalPolicyInputSchema: z.ZodObject<{
+    name: z.ZodString;
+    resourcePattern: z.ZodString;
+    permissions: z.ZodArray<z.ZodString, "many">;
+    effect: z.ZodEnum<["allow", "deny"]>;
+    conditions: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    priority: z.ZodOptional<z.ZodNumber>;
+}, "strip", z.ZodTypeAny, {
+    conditions?: Record<string, unknown> | undefined;
+    effect: "allow" | "deny";
+    name: string;
+    permissions: string[];
+    priority?: number | undefined;
+    resourcePattern: string;}, {
+    conditions?: Record<string, unknown> | undefined;
+    effect: "allow" | "deny";
+    name: string;
+    permissions: string[];
+    priority?: number | undefined;
+    resourcePattern: string;}>;
+export declare const UpdateGlobalPolicyInputSchema: z.ZodObject<{
+    name: z.ZodOptional<z.ZodString>;
+    resourcePattern: z.ZodOptional<z.ZodString>;
+    permissions: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    effect: z.ZodOptional<z.ZodEnum<["allow", "deny"]>>;
+    conditions: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
+    priority: z.ZodOptional<z.ZodNumber>;
+}, "strip", z.ZodTypeAny, {
+    conditions?: Record<string, unknown> | null | undefined;
+    effect?: "allow" | "deny" | undefined;
+    name?: string | undefined;
+    permissions?: string[] | undefined;
+    priority?: number | undefined;
+    resourcePattern?: string | undefined;}, {
+    conditions?: Record<string, unknown> | null | undefined;
+    effect?: "allow" | "deny" | undefined;
+    name?: string | undefined;
+    permissions?: string[] | undefined;
+    priority?: number | undefined;
+    resourcePattern?: string | undefined;}>;
+export declare const TogglePolicyInputSchema: z.ZodObject<{
+    enabled: z.ZodBoolean;
+}, "strip", z.ZodTypeAny, {
+    enabled: boolean;
+}, {
+    enabled: boolean;
+}>;
+export declare const SimulatePolicyInputSchema: z.ZodObject<{
+    userId: z.ZodString;
+    action: z.ZodString;
+    resourceType: z.ZodEnum<["workspace", "environment", "pod"]>;
+    resourceId: z.ZodString;
+    ipAddress: z.ZodOptional<z.ZodString>;
+    country: z.ZodOptional<z.ZodString>;
+    mfaRecent: z.ZodOptional<z.ZodBoolean>;
+    secretAgeDays: z.ZodOptional<z.ZodNumber>;
+    resourceTags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    timestamp: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    action: string;
+    country?: string | undefined;
+    ipAddress?: string | undefined;
+    mfaRecent?: boolean | undefined;
+    resourceId: string;
+    resourceTags?: string[] | undefined;
+    resourceType: "workspace" | "environment" | "pod";
+    secretAgeDays?: number | undefined;
+    timestamp?: string | undefined;
+    userId: string;}, {
+    action: string;
+    country?: string | undefined;
+    ipAddress?: string | undefined;
+    mfaRecent?: boolean | undefined;
+    resourceId: string;
+    resourceTags?: string[] | undefined;
+    resourceType: "workspace" | "environment" | "pod";
+    secretAgeDays?: number | undefined;
+    timestamp?: string | undefined;
+    userId: string;}>;
+export declare const ImportPoliciesInputSchema: z.ZodObject<{
+    teams: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        name: z.ZodString;
+        slug: z.ZodString;
+        description: z.ZodOptional<z.ZodString>;
+        policies: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            resource_type: z.ZodString;
+            resource_id: z.ZodString;
+            permissions: z.ZodArray<z.ZodString, "many">;
+            effect: z.ZodString;
+            conditions: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+        }, "strip", z.ZodTypeAny, {
+            conditions?: Record<string, unknown> | undefined;
+            effect: string;
+            permissions: string[];
+            resource_id: string;
+            resource_type: string;}, {
+            conditions?: Record<string, unknown> | undefined;
+            effect: string;
+            permissions: string[];
+            resource_id: string;
+            resource_type: string;}>, "many">>;
+    }, "strip", z.ZodTypeAny, {
+        description?: string | undefined;
+        name: string;
+        policies?: {
+            resource_type: string;
+            resource_id: string;
+            permissions: string[];
+            effect: string;
+            conditions?: Record<string, unknown> | undefined;
+        }[] | undefined;
+        slug: string;}, {
+        description?: string | undefined;
+        name: string;
+        policies?: {
+            resource_type: string;
+            resource_id: string;
+            permissions: string[];
+            effect: string;
+            conditions?: Record<string, unknown> | undefined;
+        }[] | undefined;
+        slug: string;}>, "many">>;
+    global_policies: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        name: z.ZodString;
+        resource_pattern: z.ZodString;
+        permissions: z.ZodArray<z.ZodString, "many">;
+        effect: z.ZodString;
+        conditions: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+        priority: z.ZodOptional<z.ZodNumber>;
+        enabled: z.ZodOptional<z.ZodBoolean>;
+    }, "strip", z.ZodTypeAny, {
+        conditions?: Record<string, unknown> | undefined;
+        effect: string;
+        enabled?: boolean | undefined;
+        name: string;
+        permissions: string[];
+        priority?: number | undefined;
+        resource_pattern: string;}, {
+        conditions?: Record<string, unknown> | undefined;
+        effect: string;
+        enabled?: boolean | undefined;
+        name: string;
+        permissions: string[];
+        priority?: number | undefined;
+        resource_pattern: string;}>, "many">>;
+}, "strip", z.ZodTypeAny, {
+    global_policies?: {
+        name: string;
+        permissions: string[];
+        resource_pattern: string;
+        effect: string;
+        enabled?: boolean | undefined;
+        priority?: number | undefined;
+        conditions?: Record<string, unknown> | undefined;
+    }[] | undefined;
+    teams?: {
+        name: string;
+        slug: string;
+        description?: string | undefined;
+        policies?: {
+            resource_type: string;
+            resource_id: string;
+            permissions: string[];
+            effect: string;
+            conditions?: Record<string, unknown> | undefined;
+        }[] | undefined;
+    }[] | undefined;}, {
+    global_policies?: {
+        name: string;
+        permissions: string[];
+        resource_pattern: string;
+        effect: string;
+        enabled?: boolean | undefined;
+        priority?: number | undefined;
+        conditions?: Record<string, unknown> | undefined;
+    }[] | undefined;
+    teams?: {
+        name: string;
+        slug: string;
+        description?: string | undefined;
+        policies?: {
+            resource_type: string;
+            resource_id: string;
+            permissions: string[];
+            effect: string;
+            conditions?: Record<string, unknown> | undefined;
+        }[] | undefined;
+    }[] | undefined;}>;
+export declare const AccessRequestStatusFilterSchema: z.ZodEnum<["pending", "approved", "denied", "expired"]>;
+export declare const CreateAccessRequestInputSchema: z.ZodObject<{
+    resourceType: z.ZodEnum<["workspace", "environment", "pod"]>;
+    resourceId: z.ZodString;
+    permissions: z.ZodArray<z.ZodString, "many">;
+    reason: z.ZodString;
+    durationHours: z.ZodNumber;
+}, "strip", z.ZodTypeAny, {
+    durationHours: number;
+    permissions: string[];
+    reason: string;
+    resourceId: string;
+    resourceType: "workspace" | "environment" | "pod";}, {
+    durationHours: number;
+    permissions: string[];
+    reason: string;
+    resourceId: string;
+    resourceType: "workspace" | "environment" | "pod";}>;
+export declare const ClearAccessRequestsInputSchema: z.ZodObject<{
+    statuses: z.ZodArray<z.ZodEnum<["denied", "expired"]>, "many">;
+}, "strip", z.ZodTypeAny, {
+    statuses: ("expired" | "denied")[];
+}, {
+    statuses: ("expired" | "denied")[];
+}>;
+export declare const AccessGrantStatusFilterSchema: z.ZodEnum<["active", "expired", "revoked"]>;
+export declare const ClearAccessGrantsInputSchema: z.ZodObject<{
+    statuses: z.ZodArray<z.ZodEnum<["revoked", "expired"]>, "many">;
+}, "strip", z.ZodTypeAny, {
+    statuses: ("revoked" | "expired")[];
+}, {
+    statuses: ("revoked" | "expired")[];
+}>;
+export declare const ApplyPolicyTemplateInputSchema: z.ZodObject<{
+    name: z.ZodOptional<z.ZodString>;
+    priority: z.ZodOptional<z.ZodNumber>;
+    enabled: z.ZodOptional<z.ZodBoolean>;
+    parameters: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    scopeOverride: z.ZodOptional<z.ZodObject<{
+        resourceType: z.ZodEnum<["workspace", "environment", "pod"]>;
+        resourceId: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        resourceId: string;
+        resourceType: "workspace" | "environment" | "pod";}, {
+        resourceId: string;
+        resourceType: "workspace" | "environment" | "pod";}>>;
+}, "strip", z.ZodTypeAny, {
+    enabled?: boolean | undefined;
+    name?: string | undefined;
+    parameters?: Record<string, unknown> | undefined;
+    priority?: number | undefined;
+    scopeOverride?: {
+        resourceType: "workspace" | "environment" | "pod";
+        resourceId: string;
+    } | undefined;}, {
+    enabled?: boolean | undefined;
+    name?: string | undefined;
+    parameters?: Record<string, unknown> | undefined;
+    priority?: number | undefined;
+    scopeOverride?: {
+        resourceType: "workspace" | "environment" | "pod";
+        resourceId: string;
+    } | undefined;}>;
 export type GlobalPolicy = z.infer<typeof GlobalPolicySchema>;
 export type OrgTeamPolicy = z.infer<typeof OrgTeamPolicySchema>;
 export type PoliciesTeamPolicy = z.infer<typeof PoliciesTeamPolicySchema>;
 export type AccessRequest = z.infer<typeof AccessRequestSchema>;
 export type AccessGrant = z.infer<typeof AccessGrantSchema>;
 export type PolicyTemplate = z.infer<typeof PolicyTemplateSchema>;
+export type CreateGlobalPolicyInput = z.infer<typeof CreateGlobalPolicyInputSchema>;
+export type UpdateGlobalPolicyInput = z.infer<typeof UpdateGlobalPolicyInputSchema>;
+export type SimulatePolicyInput = z.infer<typeof SimulatePolicyInputSchema>;
+export type ImportPoliciesInput = z.infer<typeof ImportPoliciesInputSchema>;
+export type CreateAccessRequestInput = z.infer<typeof CreateAccessRequestInputSchema>;
+export type ApplyPolicyTemplateInput = z.infer<typeof ApplyPolicyTemplateInputSchema>;
+export type ApproveAccessRequestInput = z.infer<typeof ApproveAccessRequestInputSchema>;
 //# sourceMappingURL=policies.d.ts.map
