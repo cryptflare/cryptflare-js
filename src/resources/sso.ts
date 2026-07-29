@@ -34,33 +34,33 @@ export class Sso extends APIResource {
   // -- Org-scoped connection management --------------------------------------
 
   listConnections(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.request({ method: 'GET', path: `${orgBase(this.resolveOrg(input))}/connections` }, options);
+    return this.request({ method: 'GET', path: `${orgBase(this.resolveOrg(input))}` }, options);
   }
 
   createConnection(input: OrgInput & Record<string, unknown>, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
     const { organisation: _o, ...body } = input;
     void _o;
-    return this.request({ method: 'POST', path: `${orgBase(org)}/connections`, body }, options);
+    return this.request({ method: 'POST', path: `${orgBase(org)}`, body }, options);
   }
 
   updateConnection(input: OrgInput & { connectionId: string } & Record<string, unknown>, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
     const { organisation: _o, connectionId, ...body } = input;
     void _o;
-    return this.request({ method: 'PATCH', path: `${orgBase(org)}/connections/${enc(connectionId)}`, body }, options);
+    return this.request({ method: 'PATCH', path: `${orgBase(org)}/${enc(connectionId)}`, body }, options);
   }
 
   deleteConnection(input: OrgInput & { connectionId: string }, options?: RequestOptions): Promise<void> {
     const org = this.resolveOrg(input);
-    return this.request<void>({ method: 'DELETE', path: `${orgBase(org)}/connections/${enc(input.connectionId)}` }, options);
+    return this.request<void>({ method: 'DELETE', path: `${orgBase(org)}/${enc(input.connectionId)}` }, options);
   }
 
   toggleConnection(input: OrgInput & { connectionId: string; enabled: boolean }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
     return this.request({
       method: 'POST',
-      path: `${orgBase(org)}/connections/${enc(input.connectionId)}/toggle`,
+      path: `${orgBase(org)}/${enc(input.connectionId)}/toggle`,
       body: { enabled: input.enabled },
     }, options);
   }
@@ -69,7 +69,7 @@ export class Sso extends APIResource {
     const org = this.resolveOrg(input);
     return this.request({
       method: 'POST',
-      path: `${orgBase(org)}/connections/${enc(input.connectionId)}/test`,
+      path: `${orgBase(org)}/${enc(input.connectionId)}/test`,
     }, options);
   }
 
@@ -77,7 +77,7 @@ export class Sso extends APIResource {
     const org = this.resolveOrg(input);
     return this.request({
       method: 'GET',
-      path: `${orgBase(org)}/connections/${enc(input.connectionId)}/mappings`,
+      path: `${orgBase(org)}/${enc(input.connectionId)}/mappings`,
     }, options);
   }
 
@@ -85,7 +85,7 @@ export class Sso extends APIResource {
     const org = this.resolveOrg(input);
     return this.request({
       method: 'POST',
-      path: `${orgBase(org)}/connections/${enc(input.connectionId)}/mappings`,
+      path: `${orgBase(org)}/${enc(input.connectionId)}/mappings`,
       body: { externalGroupId: input.externalGroupId, role: input.role },
     }, options);
   }
@@ -94,7 +94,7 @@ export class Sso extends APIResource {
     const org = this.resolveOrg(input);
     return this.request<void>({
       method: 'DELETE',
-      path: `${orgBase(org)}/connections/${enc(input.connectionId)}/mappings/${enc(input.mappingId)}`,
+      path: `${orgBase(org)}/${enc(input.connectionId)}/mappings/${enc(input.mappingId)}`,
     }, options);
   }
 }

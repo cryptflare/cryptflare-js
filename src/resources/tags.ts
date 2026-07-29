@@ -15,7 +15,7 @@ export class Tags extends APIResource {
   }
 
   listOrg(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.request({ method: 'GET', path: `${base(this.resolveOrg(input))}/all` }, options);
+    return this.request({ method: 'GET', path: `${base(this.resolveOrg(input))}/org` }, options);
   }
 
   create(input: OrgInput & { name: string; colour?: string; resourceType?: string; resourceId?: string }, options?: RequestOptions): Promise<unknown> {
@@ -29,6 +29,6 @@ export class Tags extends APIResource {
 
   delete(input: OrgInput & { tagId: string }, options?: RequestOptions): Promise<void> {
     const org = this.resolveOrg(input);
-    return this.request<void>({ method: 'DELETE', path: `${base(org)}/${enc(input.tagId)}` }, options);
+    return this.request<void>({ method: 'DELETE', path: `${base(org)}` }, options);
   }
 }

@@ -1,5 +1,71 @@
 # @cryptflare/sdk
 
+## 1.0.0
+
+### Major Changes
+
+- d154236: Correct 53 SDK methods that targeted routes the API does not serve.
+
+  The contract audit found 48 of 173 requests pointing at non-existent paths.
+  Every one has been checked against the generated OpenAPI spec and corrected:
+
+  | Resource         | Was                                         | Now                                      |
+  | ---------------- | ------------------------------------------- | ---------------------------------------- |
+  | analytics        | `/request-history`, `/endpoint-breakdown`   | `/requests`, `/endpoints`                |
+  | audit            | `/verify-chain`, `/integrity-report`        | `/verify`, `/verify/report`              |
+  | billing          | `POST /plan`, `/sessions/:id/confirm`       | `/change-plan`, `/confirm-session`       |
+  | compliance       | `/reports/*`                                | `/report/*`                              |
+  | data-residency   | `/data-residency/region`                    | `/data-region`                           |
+  | encryption       | `/status`, `/keys`                          | `/`, `/generate`                         |
+  | environments     | `/resolve`                                  | `/resolve-path`                          |
+  | events           | `/subscriptions/:id/deliveries`             | `/deliveries`                            |
+  | integrations     | `POST /probe`                               | `POST /:id/probe`                        |
+  | members          | `POST /members`, `PATCH /members/:id`       | `/members/invite`, `/members/:id/role`   |
+  | invitations      | `/invitations/*`                            | `/members/invitations/*`                 |
+  | policies         | `/:id/simulate`, `/teams/:id`               | `/simulate`, `/team-policies`            |
+  | sso              | `/sso/connections/*`                        | `/sso/*`                                 |
+  | support          | `/support/tickets/*`                        | `/support/*`, attachments -> `/upload`   |
+  | sync-connections | `/:id/handshake`, `/:id/sync`, `/:id/queue` | `/:id/confirm`, `/:id/trigger`, `/queue` |
+  | tags             | `/all`, `DELETE /:id`                       | `/org`, `DELETE /`                       |
+  | transfers        | `/organisations/:org/transfer/*`            | `/auth/transfer*`                        |
+
+  BREAKING: `integrations.probe()` now requires `integrationId`, and the tag and
+  transfer methods identify their subject in the body rather than the path.
+
+  Three methods target endpoints the API has never implemented - `audit.stream()`,
+  `rotationPolicies.get()` and `organisations.toggleFeature()`. They can only 404.
+  They are marked `@deprecated` rather than removed so the removal lands in a
+  deliberate major.
+
+### Patch Changes
+
+- 023d039: Fix `dynamicSecrets.issueLease`, which posted to a route that does not exist,
+  and `renewLease`, which sent the wrong field name.
+
+  `issueLease` posted to `/dynamic-secrets/leases` with the config id in the body.
+  There is no `POST /leases` route - `/leases` is the GET listing. The real
+  endpoint is `POST /configs/:configId/lease`, so issuing a lease through the SDK
+  never worked.
+
+  `renewLease` sent `ttlSeconds` where the API reads `increment`. Zod strips
+  unknown keys, so the requested extension was silently dropped and every renewal
+  used the server default - the call appeared to succeed while ignoring its main
+  argument.
+
+  ```ts
+  // before - broken
+  client.dynamicSecrets.issueLease({ configId, ttlSeconds: 900 });
+  client.dynamicSecrets.renewLease({ leaseId, ttlSeconds: 300 });
+
+  // after
+  client.dynamicSecrets.issueLease({ configId, ttl: 900 });
+  client.dynamicSecrets.issueLease({ configId, wrap: { ttl: 60 } }); // response wrapping, now supported
+  client.dynamicSecrets.renewLease({ leaseId, increment: 300 });
+  ```
+
+  `issueLease`'s `metadata` option is gone; the endpoint never accepted it.
+  Response wrapping (`wrap`) is now exposed - it was in the API but not the SDK.
+
 ## 0.4.0
 
 ### Minor Changes

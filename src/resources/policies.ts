@@ -42,7 +42,7 @@ export class Policies extends APIResource {
     const org = this.resolveOrg(input);
     return this.request({
       method: 'POST',
-      path: `${base(org)}/${enc(input.policyId)}/simulate`,
+      path: `${base(org)}/simulate`,
       body: { subject: input.subject },
     }, options);
   }
@@ -78,7 +78,7 @@ export class Policies extends APIResource {
 
   listTeamPolicies(input: OrgInput & { teamId: string }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
-    return this.request({ method: 'GET', path: `${base(org)}/teams/${enc(input.teamId)}` }, options);
+    return this.request({ method: 'GET', path: `${base(org)}/team-policies` }, options);
   }
 
   // -- Access requests -------------------------------------------------------

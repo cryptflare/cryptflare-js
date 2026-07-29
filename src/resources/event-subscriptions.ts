@@ -50,7 +50,7 @@ export class EventSubscriptions extends APIResource {
     if (input.cursor !== undefined) query['cursor'] = input.cursor;
     return this.request({
       method: 'GET',
-      path: `${base(org)}/subscriptions/${enc(input.subscriptionId)}/deliveries`,
+      path: `${base(org)}/deliveries`,
       query,
     }, options);
   }
@@ -76,7 +76,7 @@ export class EventSubscriptions extends APIResource {
     const org = this.resolveOrg(input);
     return this.request({
       method: 'POST',
-      path: `${base(org)}/subscriptions/${enc(input.subscriptionId)}/deliveries/${enc(input.deliveryId)}/redeliver`,
+      path: `${base(org)}/deliveries/${enc(input.deliveryId)}/redeliver`,
     }, options);
   }
 

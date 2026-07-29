@@ -34,7 +34,7 @@ export class Environments extends APIResource {
     const { organisation, workspace, environment } = this.resolveScope(input);
     return this.requestData({
       method: 'GET',
-      path: `${wsBase(organisation, workspace)}/${enc(environment)}/resolve`,
+      path: `${wsBase(organisation, workspace)}/${enc(environment)}/resolve-path`,
       query: { path: input.path },
     }, options);
   }

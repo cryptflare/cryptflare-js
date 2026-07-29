@@ -15,11 +15,20 @@ export class Integrations extends APIResource {
     return this.request({ method: 'GET', path: base(this.resolveOrg(input)) }, options);
   }
 
-  probe(input: OrgInput & { provider: string; config: Record<string, unknown> }, options?: RequestOptions): Promise<unknown> {
+  /**
+   * POST /integrations/:id/probe - tests an existing integration's credentials.
+   *
+   * Previously posted to `/integrations/probe`, which does not exist; probing
+   * is scoped to a specific integration, so `integrationId` is now required.
+   */
+  probe(
+    input: OrgInput & { integrationId: string; provider: string; config: Record<string, unknown> },
+    options?: RequestOptions,
+  ): Promise<unknown> {
     const org = this.resolveOrg(input);
     return this.request({
       method: 'POST',
-      path: `${base(org)}/probe`,
+      path: `${base(org)}/${enc(input.integrationId)}/probe`,
       body: { provider: input.provider, config: input.config },
     }, options);
   }

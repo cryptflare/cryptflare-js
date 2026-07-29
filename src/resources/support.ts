@@ -11,26 +11,26 @@ export class Support extends APIResource {
     const query: Record<string, string> = {};
     if (input.cursor !== undefined) query['cursor'] = input.cursor;
     if (input.status !== undefined) query['status'] = input.status;
-    return this.request({ method: 'GET', path: `${base(org)}/tickets`, query }, options);
+    return this.request({ method: 'GET', path: `${base(org)}`, query }, options);
   }
 
   create(input: OrgInput & { subject: string; body: string; priority?: 'low' | 'normal' | 'high' }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
     const body: Record<string, unknown> = { subject: input.subject, body: input.body };
     if (input.priority !== undefined) body['priority'] = input.priority;
-    return this.request({ method: 'POST', path: `${base(org)}/tickets`, body }, options);
+    return this.request({ method: 'POST', path: `${base(org)}`, body }, options);
   }
 
   get(input: OrgInput & { ticketId: string }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
-    return this.request({ method: 'GET', path: `${base(org)}/tickets/${enc(input.ticketId)}` }, options);
+    return this.request({ method: 'GET', path: `${base(org)}/${enc(input.ticketId)}` }, options);
   }
 
   addMessage(input: OrgInput & { ticketId: string; body: string }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
     return this.request({
       method: 'POST',
-      path: `${base(org)}/tickets/${enc(input.ticketId)}/messages`,
+      path: `${base(org)}/${enc(input.ticketId)}/messages`,
       body: { body: input.body },
     }, options);
   }
@@ -41,7 +41,7 @@ export class Support extends APIResource {
     if (input.resolution !== undefined) body['resolution'] = input.resolution;
     return this.request({
       method: 'POST',
-      path: `${base(org)}/tickets/${enc(input.ticketId)}/close`,
+      path: `${base(org)}/${enc(input.ticketId)}/close`,
       body,
     }, options);
   }
@@ -50,7 +50,7 @@ export class Support extends APIResource {
     const org = this.resolveOrg(input);
     return this.request({
       method: 'POST',
-      path: `${base(org)}/tickets/${enc(input.ticketId)}/attachments`,
+      path: `${base(org)}/${enc(input.ticketId)}/upload`,
       body: { filename: input.filename, contentType: input.contentType, size: input.size },
     }, options);
   }

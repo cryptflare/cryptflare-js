@@ -7,7 +7,7 @@ const base = (org: string) => `/v1/organisations/${enc(org)}/encryption`;
 /** BYOK / customer-managed encryption keys. */
 export class Encryption extends APIResource {
   getStatus(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.request({ method: 'GET', path: `${base(this.resolveOrg(input))}/status` }, options);
+    return this.request({ method: 'GET', path: `${base(this.resolveOrg(input))}` }, options);
   }
 
   enable(input: OrgInput & { keyId: string }, options?: RequestOptions): Promise<unknown> {
@@ -23,6 +23,6 @@ export class Encryption extends APIResource {
     const org = this.resolveOrg(input);
     const body: Record<string, unknown> = { provider: input.provider };
     if (input.alias !== undefined) body['alias'] = input.alias;
-    return this.request({ method: 'POST', path: `${base(org)}/keys`, body }, options);
+    return this.request({ method: 'POST', path: `${base(org)}/generate`, body }, options);
   }
 }

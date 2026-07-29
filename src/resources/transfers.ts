@@ -11,16 +11,16 @@ const base = (org: string) => `/v1/organisations/${enc(org)}/transfer`;
  */
 export class Transfers extends APIResource {
   pending(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.request({ method: 'GET', path: `${base(this.resolveOrg(input))}/pending` }, options);
+    return this.request({ method: 'GET', path: `/v1/auth/transfers/pending` }, options);
   }
 
   accept(input: OrgInput & { transferId: string }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
-    return this.request({ method: 'POST', path: `${base(org)}/${enc(input.transferId)}/accept` }, options);
+    return this.request({ method: 'POST', path: `/v1/auth/transfer/accept` }, options);
   }
 
   decline(input: OrgInput & { transferId: string }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
-    return this.request({ method: 'POST', path: `${base(org)}/${enc(input.transferId)}/decline` }, options);
+    return this.request({ method: 'POST', path: `/v1/auth/transfer/decline` }, options);
   }
 }

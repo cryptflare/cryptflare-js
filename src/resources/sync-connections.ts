@@ -38,7 +38,7 @@ export class SyncConnections extends APIResource {
     const org = this.resolveOrg(input);
     return this.request({
       method: 'POST',
-      path: `${base(org)}/${enc(input.connectionId)}/handshake`,
+      path: `${base(org)}/${enc(input.connectionId)}/confirm`,
       body: { nonce: input.nonce },
     }, options);
   }
@@ -53,7 +53,7 @@ export class SyncConnections extends APIResource {
 
   trigger(input: OrgInput & { connectionId: string }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
-    return this.request({ method: 'POST', path: `${base(org)}/${enc(input.connectionId)}/sync` }, options);
+    return this.request({ method: 'POST', path: `${base(org)}/${enc(input.connectionId)}/trigger` }, options);
   }
 
   listLogs(input: OrgInput & { connectionId: string; cursor?: string }, options?: RequestOptions): Promise<unknown> {
@@ -74,6 +74,6 @@ export class SyncConnections extends APIResource {
 
   getQueue(input: OrgInput & { connectionId: string }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
-    return this.request({ method: 'GET', path: `${base(org)}/${enc(input.connectionId)}/queue` }, options);
+    return this.request({ method: 'GET', path: `${base(org)}/queue` }, options);
   }
 }

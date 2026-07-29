@@ -14,7 +14,7 @@ export class Billing extends APIResource {
     const org = this.resolveOrg(input);
     const body: Record<string, unknown> = { plan: input.plan };
     if (input.quantity !== undefined) body['quantity'] = input.quantity;
-    return this.request({ method: 'POST', path: `${base(org)}/plan`, body }, options);
+    return this.request({ method: 'POST', path: `${base(org)}/change-plan`, body }, options);
   }
 
   cancelSubscription(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
@@ -38,7 +38,7 @@ export class Billing extends APIResource {
     const org = this.resolveOrg(input);
     return this.request({
       method: 'POST',
-      path: `${base(org)}/sessions/${enc(input.sessionId)}/confirm`,
+      path: `${base(org)}/confirm-session`,
     }, options);
   }
 

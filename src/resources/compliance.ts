@@ -10,18 +10,18 @@ export class Compliance extends APIResource {
     const org = this.resolveOrg(input);
     return this.request({
       method: 'POST',
-      path: `${base(org)}/reports`,
+      path: `${base(org)}/report`,
       body: { framework: input.framework, periodStart: input.periodStart, periodEnd: input.periodEnd },
     }, options);
   }
 
   reportStatus(input: OrgInput & { reportId: string }, options?: RequestOptions): Promise<{ status: 'pending' | 'ready' | 'failed' }> {
     const org = this.resolveOrg(input);
-    return this.request({ method: 'GET', path: `${base(org)}/reports/${enc(input.reportId)}` }, options);
+    return this.request({ method: 'GET', path: `${base(org)}/report/${enc(input.reportId)}` }, options);
   }
 
   downloadReport(input: OrgInput & { reportId: string }, options?: RequestOptions): Promise<{ url: string }> {
     const org = this.resolveOrg(input);
-    return this.request({ method: 'GET', path: `${base(org)}/reports/${enc(input.reportId)}/download` }, options);
+    return this.request({ method: 'GET', path: `${base(org)}/report/${enc(input.reportId)}/download` }, options);
   }
 }

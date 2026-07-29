@@ -41,18 +41,43 @@ export class DynamicSecrets extends APIResource {
 
   // -- Leases ----------------------------------------------------------------
 
-  issueLease(input: OrgInput & { configId: string; ttlSeconds?: number; metadata?: Record<string, unknown> }, options?: RequestOptions): Promise<unknown> {
-    const org = this.resolveOrg(input);
-    const body: Record<string, unknown> = { configId: input.configId };
-    if (input.ttlSeconds !== undefined) body['ttlSeconds'] = input.ttlSeconds;
-    if (input.metadata !== undefined) body['metadata'] = input.metadata;
-    return this.request({ method: 'POST', path: `${base(org)}/leases`, body }, options);
-  }
-
-  renewLease(input: OrgInput & { leaseId: string; ttlSeconds?: number }, options?: RequestOptions): Promise<unknown> {
+  /**
+   * POST /configs/:configId/lease - mints a fresh upstream credential.
+   *
+   * Previously posted to `/leases` with the config id in the body. No such
+   * route exists - `/leases` is the GET listing - so issuing a lease through
+   * the SDK never worked. The config id belongs in the path, and the body
+   * carries only `ttl` and `wrap`.
+   *
+   * `ttl` is in seconds and is clamped server-side to
+   * min(max_ttl, system_max_ttl, remaining lifetime of the parent token).
+   */
+  issueLease(
+    input: OrgInput & { configId: string; ttl?: number; wrap?: { ttl?: number } },
+    options?: RequestOptions,
+  ): Promise<unknown> {
     const org = this.resolveOrg(input);
     const body: Record<string, unknown> = {};
-    if (input.ttlSeconds !== undefined) body['ttlSeconds'] = input.ttlSeconds;
+    if (input.ttl !== undefined) body['ttl'] = input.ttl;
+    if (input.wrap !== undefined) body['wrap'] = input.wrap;
+    return this.request(
+      { method: 'POST', path: `${base(org)}/configs/${enc(input.configId)}/lease`, body },
+      options,
+    );
+  }
+
+  /**
+   * POST /leases/:leaseId/renew - extends a lease.
+   *
+   * The extension field is `increment`, not `ttlSeconds`. Zod strips unknown
+   * keys, so the previous name was dropped silently and every renewal used the
+   * server default - a request for a specific extension appeared to succeed
+   * while being ignored.
+   */
+  renewLease(input: OrgInput & { leaseId: string; increment?: number }, options?: RequestOptions): Promise<unknown> {
+    const org = this.resolveOrg(input);
+    const body: Record<string, unknown> = {};
+    if (input.increment !== undefined) body['increment'] = input.increment;
     return this.request({ method: 'POST', path: `${base(org)}/leases/${enc(input.leaseId)}/renew`, body }, options);
   }
 
@@ -89,7 +114,7 @@ export class DynamicSecrets extends APIResource {
     const org = this.resolveOrg(input);
     return this.request({
       method: 'POST',
-      path: `${base(org)}/leases/${enc(input.leaseId)}/unwrap`,
+      path: `${base(org)}/unwrap/${enc(input.wrapToken)}`,
       body: { wrapToken: input.wrapToken },
     }, options);
   }

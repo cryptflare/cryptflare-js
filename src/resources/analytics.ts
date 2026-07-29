@@ -12,7 +12,7 @@ export class Analytics extends APIResource {
     if (input.from !== undefined) query['from'] = input.from;
     if (input.to !== undefined) query['to'] = input.to;
     if (input.granularity !== undefined) query['granularity'] = input.granularity;
-    return this.request({ method: 'GET', path: `${base(org)}/request-history`, query }, options);
+    return this.request({ method: 'GET', path: `${base(org)}/requests`, query }, options);
   }
 
   endpointBreakdown(input: OrgInput & { from?: string; to?: string } = {}, options?: RequestOptions): Promise<unknown> {
@@ -20,6 +20,6 @@ export class Analytics extends APIResource {
     const query: Record<string, string> = {};
     if (input.from !== undefined) query['from'] = input.from;
     if (input.to !== undefined) query['to'] = input.to;
-    return this.request({ method: 'GET', path: `${base(org)}/endpoint-breakdown`, query }, options);
+    return this.request({ method: 'GET', path: `${base(org)}/endpoints`, query }, options);
   }
 }

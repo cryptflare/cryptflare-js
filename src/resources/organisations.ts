@@ -55,18 +55,18 @@ export class Organisations extends APIResource {
     return this.requestData({ method: 'GET', path: `/v1/organisations/${enc(this.resolveOrg(input))}/members` }, options);
   }
 
-  /** POST /v1/organisations/:org/members - invite. */
+  /** POST /v1/organisations/:org/members/invite. */
   inviteMember(input: OrgInput & { email: string; role: string }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
-    return this.requestData({ method: 'POST', path: `/v1/organisations/${enc(org)}/members`, body: { email: input.email, role: input.role } }, options);
+    return this.requestData({ method: 'POST', path: `/v1/organisations/${enc(org)}/members/invite`, body: { email: input.email, role: input.role } }, options);
   }
 
-  /** PATCH /v1/organisations/:org/members/:userId. */
+  /** PATCH /v1/organisations/:org/members/:userId/role. */
   updateMemberRole(input: OrgInput & { userId: string; role: string }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
     return this.requestData({
       method: 'PATCH',
-      path: `/v1/organisations/${enc(org)}/members/${enc(input.userId)}`,
+      path: `/v1/organisations/${enc(org)}/members/${enc(input.userId)}/role`,
       body: { role: input.role },
     }, options);
   }
@@ -82,7 +82,7 @@ export class Organisations extends APIResource {
 
   /** GET /v1/organisations/:org/invitations. */
   listInvitations(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.requestData({ method: 'GET', path: `/v1/organisations/${enc(this.resolveOrg(input))}/invitations` }, options);
+    return this.requestData({ method: 'GET', path: `/v1/organisations/${enc(this.resolveOrg(input))}/members/invitations` }, options);
   }
 
   /** POST /v1/organisations/:org/invitations/:id/resend. */
@@ -90,7 +90,7 @@ export class Organisations extends APIResource {
     const org = this.resolveOrg(input);
     return this.requestData({
       method: 'POST',
-      path: `/v1/organisations/${enc(org)}/invitations/${enc(input.id)}/resend`,
+      path: `/v1/organisations/${enc(org)}/members/invitations/${enc(input.id)}/resend`,
     }, options);
   }
 
@@ -99,7 +99,7 @@ export class Organisations extends APIResource {
     const org = this.resolveOrg(input);
     return this.request<void>({
       method: 'DELETE',
-      path: `/v1/organisations/${enc(org)}/invitations/${enc(input.id)}`,
+      path: `/v1/organisations/${enc(org)}/members/invitations/${enc(input.id)}`,
     }, options);
   }
 
@@ -132,6 +132,11 @@ export class Organisations extends APIResource {
   }
 
   /** POST /v1/organisations/:org/features/:feature/toggle. */
+  /**
+   * @deprecated No such endpoint. The API exposes `GET` and `POST
+   * /organisations/:org/features`, but no per-feature toggle route, so this
+   * can only ever 404.
+   */
   toggleFeature(input: OrgInput & { feature: string; enabled: boolean }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
     return this.requestData({

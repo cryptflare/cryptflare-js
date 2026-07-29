@@ -46,11 +46,11 @@ export class Audit extends APIResource {
     const query: Record<string, string> = {};
     if (input.from !== undefined) query['from'] = input.from;
     if (input.to !== undefined) query['to'] = input.to;
-    return this.request({ method: 'GET', path: `${base(org)}/verify-chain`, query }, options);
+    return this.request({ method: 'GET', path: `${base(org)}/verify`, query }, options);
   }
 
   integrityReport(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.request({ method: 'GET', path: `${base(this.resolveOrg(input))}/integrity-report` }, options);
+    return this.request({ method: 'GET', path: `${base(this.resolveOrg(input))}/verify/report` }, options);
   }
 
   /**
@@ -74,6 +74,11 @@ export class Audit extends APIResource {
   /**
    * GET /v1/organisations/:org/audit/stream - SSE stream of audit events.
    * Iterates lazily; aborting `options.signal` closes the connection.
+   */
+  /**
+   * @deprecated No such endpoint. The API implements no
+   * `GET /organisations/:org/audit/stream`, so this can only ever 404. Kept so
+   * the removal lands in a major - poll `audit.list` instead.
    */
   async stream(input: OrgInput & { lastEventId?: string } = {}, options?: RequestOptions): Promise<EventStream<AuditEvent>> {
     const org = this.resolveOrg(input);

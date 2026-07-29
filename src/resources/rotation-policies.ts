@@ -10,6 +10,11 @@ export class RotationPolicies extends APIResource {
     return this.request({ method: 'GET', path: base(this.resolveOrg(input)) }, options);
   }
 
+  /**
+   * @deprecated No such endpoint. `/rotation-policies/:policyId` exists only
+   * for PATCH and DELETE - there is no single-policy GET. Use `list()` and
+   * select from the result.
+   */
   get(input: OrgInput & { policyId: string }, options?: RequestOptions): Promise<unknown> {
     const org = this.resolveOrg(input);
     return this.request({ method: 'GET', path: `${base(org)}/${enc(input.policyId)}` }, options);
