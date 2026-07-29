@@ -1,5 +1,13 @@
 # @cryptflare/sdk
 
+## 1.0.1
+
+### Patch Changes
+
+- 2423622: Wait out a rate limit for as long as the server asks, instead of clamping `Retry-After` to `maxDelayMs`.
+
+  The reveal endpoint allows 30 requests per minute and answers a 429 with "retry in 27s". `maxDelayMs` defaults to 8s, and the backoff clamped the server's instruction down to it, so every retry woke inside the closed window and all three attempts failed. `maxDelayMs` now caps only computed backoff; a server-supplied `Retry-After` is honoured up to the new `maxRetryAfterMs` option (default 60s), plus a one-second grace because the header is whole seconds. A wait longer than that ceiling is not retried at all - surfacing the rate limit beats stalling a call the caller is awaiting.
+
 ## 1.0.0
 
 ### Major Changes

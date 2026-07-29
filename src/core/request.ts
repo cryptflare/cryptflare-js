@@ -235,7 +235,13 @@ export class RequestRunner {
     error: CryptFlareError,
     callOptions: RequestOptions | undefined,
   ): Promise<void> {
-    const delayMs = computeBackoffMs(attempt, retry.initialDelayMs, retry.maxDelayMs, error);
+    const delayMs = computeBackoffMs(
+      attempt,
+      retry.initialDelayMs,
+      retry.maxDelayMs,
+      error,
+      retry.maxRetryAfterMs,
+    );
     await safeHook(this.config.hooks.onRetry, {
       attempt,
       delayMs,

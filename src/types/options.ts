@@ -18,8 +18,20 @@ export type RetryOptions = {
   maxAttempts?: number;
   /** Base of the exponential backoff in ms. Default 500. */
   initialDelayMs?: number;
-  /** Cap on backoff in ms. Default 8_000. */
+  /** Cap on backoff in ms. Default 8_000. Applies to computed backoff only. */
   maxDelayMs?: number;
+  /**
+   * Longest `Retry-After` the client will wait out on a 429. Default 60_000.
+   *
+   * Separate from `maxDelayMs` on purpose: that caps a delay the client
+   * invented, whereas `Retry-After` is the server stating when the window
+   * reopens. Clamping the latter to the former made every retry land inside
+   * the closed window - a 30/min reveal limit answers "retry in 27s", the
+   * client slept 8s, and all three attempts failed. Beyond this ceiling the
+   * request is not retried at all: surfacing the rate limit beats sleeping
+   * for minutes inside a call the caller is awaiting.
+   */
+  maxRetryAfterMs?: number;
   /**
    * Predicate evaluated before each retry. When provided, overrides the
    * default retry-matrix decision. Return true to retry, false to give up.

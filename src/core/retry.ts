@@ -13,7 +13,15 @@ export const DEFAULT_RETRY: Required<Omit<RetryOptions, 'shouldRetry'>> = {
   maxAttempts: 3,
   initialDelayMs: 500,
   maxDelayMs: 8_000,
+  maxRetryAfterMs: 60_000,
 };
+
+/**
+ * Added to a server-supplied `Retry-After` before sleeping. The header is
+ * whole seconds, so a window closing 27.4s from now reports 27; waking at
+ * exactly 27.0s is still inside it and burns an attempt on a certain 429.
+ */
+const RETRY_AFTER_GRACE_MS = 1_000;
 
 /**
  * The retry matrix from `docs/standards/sdk/index.md`. The umbrella spec
@@ -58,9 +66,11 @@ export function computeBackoffMs(
   initialDelayMs: number,
   maxDelayMs: number,
   error: CryptFlareError,
+  maxRetryAfterMs: number = DEFAULT_RETRY.maxRetryAfterMs,
 ): number {
   if (error instanceof RateLimitError && typeof error.retryAfterMs === 'number') {
-    return Math.min(error.retryAfterMs, maxDelayMs);
+    // Bounded by maxRetryAfterMs, NOT maxDelayMs. See RetryOptions.
+    return Math.min(error.retryAfterMs + RETRY_AFTER_GRACE_MS, maxRetryAfterMs);
   }
   const exp = initialDelayMs * 2 ** attempt;
   const cap = Math.min(maxDelayMs, exp);
@@ -69,20 +79,45 @@ export function computeBackoffMs(
 
 export function resolveRetryConfig(
   retry: RetryOptions | false | undefined,
-): { maxAttempts: number; initialDelayMs: number; maxDelayMs: number; shouldRetry: (e: CryptFlareError, attempt: number) => boolean } {
+): {
+  maxAttempts: number;
+  initialDelayMs: number;
+  maxDelayMs: number;
+  maxRetryAfterMs: number;
+  shouldRetry: (e: CryptFlareError, attempt: number) => boolean;
+} {
   if (retry === false) {
     return {
       maxAttempts: 1,
       initialDelayMs: DEFAULT_RETRY.initialDelayMs,
       maxDelayMs: DEFAULT_RETRY.maxDelayMs,
+      maxRetryAfterMs: DEFAULT_RETRY.maxRetryAfterMs,
       shouldRetry: () => false,
     };
   }
+
+  const maxRetryAfterMs = retry?.maxRetryAfterMs ?? DEFAULT_RETRY.maxRetryAfterMs;
+  const base = retry?.shouldRetry ?? defaultShouldRetry;
+
   return {
     maxAttempts: retry?.maxAttempts ?? DEFAULT_RETRY.maxAttempts,
     initialDelayMs: retry?.initialDelayMs ?? DEFAULT_RETRY.initialDelayMs,
     maxDelayMs: retry?.maxDelayMs ?? DEFAULT_RETRY.maxDelayMs,
-    shouldRetry: retry?.shouldRetry ?? defaultShouldRetry,
+    maxRetryAfterMs,
+    // A wait longer than the ceiling is not worth sleeping through inside a
+    // call the caller is awaiting; give the rate limit back to them instead
+    // of stalling and then failing anyway. A caller-supplied shouldRetry is
+    // still consulted for everything under the ceiling.
+    shouldRetry: (error, attempt) => {
+      if (
+        error instanceof RateLimitError
+        && typeof error.retryAfterMs === 'number'
+        && error.retryAfterMs > maxRetryAfterMs
+      ) {
+        return false;
+      }
+      return base(error, attempt);
+    },
   };
 }
 
