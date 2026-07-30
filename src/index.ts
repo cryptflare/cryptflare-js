@@ -23,6 +23,8 @@ export type { ErrorCode, ErrorDetail } from './core/errors';
 
 export { CursorPage } from './core/pagination';
 export type { PageEnvelope } from './core/pagination';
+// Returned by `audit.list`; consumers could not name it.
+export type { AuditEvent } from './resources/audit';
 export { PagePromise } from './core/page-promise';
 
 export { verifyWebhook, WebhookVerificationError } from './core/webhooks';

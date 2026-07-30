@@ -1,5 +1,11 @@
 # @cryptflare/sdk
 
+## 1.0.2
+
+### Patch Changes
+
+- bc0656b: Export `AuditEvent`. It is the element type of `audit.list`, but consumers could not name it.
+
 ## 1.0.1
 
 ### Patch Changes
