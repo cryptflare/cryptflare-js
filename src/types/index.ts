@@ -155,6 +155,14 @@ export type SecretMoveInput = _MoveSecretBody;
 export type UpdateSecretSettingsInput = _UpdateSettingsBody;
 export type SecretRevealResponse = _RevealedSecret;
 
+/** Result of `secrets.revealMany`. `missing` names requested keys that do
+ *  not exist, so one stale key cannot fail an otherwise good batch. */
+export type SecretRevealManyResponse = {
+  secrets: _RevealedSecret[];
+  missing: string[];
+  encoding: 'utf-8' | 'base64';
+};
+
 export type SecretListResponse = {
   data: SecretListItem[];
   nextCursor?: string | null;

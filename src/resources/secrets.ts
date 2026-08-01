@@ -18,6 +18,7 @@ import type {
   SecretVersion,
   SecretVersionsResponse,
   UpdateSecretSettingsInput,
+  SecretRevealManyResponse,
 } from '../types';
 
 type ListInput = Scope & {
@@ -63,6 +64,37 @@ export class Secrets extends APIResource {
     return this.requestData<SecretRevealResponse>({
       method: 'GET',
       path: `${basePath(organisation, workspace, environment)}/${encodeURIComponent(input.key)}`,
+    }, options);
+  }
+
+  /**
+   * POST /reveal - decrypt many secrets in one request.
+   *
+   * Prefer this over looping `reveal()`. Each single reveal is a full worker
+   * invocation paying auth, org context, RBAC, a quota Durable Object hop and
+   * several D1 queries to decrypt one value, so pulling a 23-key environment
+   * cost 24 requests instead of 2.
+   *
+   * The rate limit is unchanged: the server charges one unit per key against
+   * the same bucket, so this buys round trips, not budget. Omit `keys` to
+   * reveal everything in the environment.
+   *
+   * Keys travel in the body, never the query string, so they cannot land in
+   * access logs or proxy history.
+   */
+  revealMany(
+    input: Scope & { keys?: string[]; podId?: string | null; format?: 'utf-8' | 'base64' } = {} as Scope,
+    options?: RequestOptions,
+  ): Promise<SecretRevealManyResponse> {
+    const { organisation, workspace, environment } = this.resolveScope(input);
+    return this.requestData<SecretRevealManyResponse>({
+      method: 'POST',
+      path: `${basePath(organisation, workspace, environment)}/reveal`,
+      body: {
+        ...(input.keys ? { keys: input.keys } : {}),
+        ...(input.podId !== undefined ? { podId: input.podId } : {}),
+        ...(input.format ? { format: input.format } : {}),
+      },
     }, options);
   }
 

@@ -473,6 +473,80 @@ export declare const RevealedSecretResponseSchema: z.ZodObject<{
         version: number;
     };
 }>;
+/**
+ * Batch reveal request.
+ *
+ * Sent as a POST body rather than a query string: key names are sensitive
+ * enough that they must not land in URLs, access logs, or browser history.
+ *
+ * `keys` omitted means "every secret in the environment", which is what a
+ * `cf pull` does. The 100 cap matches the other batch endpoints and bounds
+ * both the decrypt work and the rate-limit charge for one call.
+ */
+export declare const RevealSecretsBatchBodySchema: z.ZodObject<{
+    keys: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    podId: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    format: z.ZodOptional<z.ZodEnum<["utf-8", "base64"]>>;
+}, "strip", z.ZodTypeAny, {
+    format?: "base64" | "utf-8" | undefined;
+    keys?: string[] | undefined;
+    podId?: string | null | undefined;}, {
+    format?: "base64" | "utf-8" | undefined;
+    keys?: string[] | undefined;
+    podId?: string | null | undefined;}>;
+export declare const RevealedSecretsBatchResponseSchema: z.ZodObject<{
+    data: z.ZodObject<{
+        secrets: z.ZodArray<z.ZodObject<{
+            key: z.ZodString;
+            value: z.ZodString;
+            version: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            key: string;
+            value: string;
+            version: number;}, {
+            key: string;
+            value: string;
+            version: number;}>, "many">;
+        /** Keys that were asked for but do not exist. Reported rather than 404ing
+         *  the whole call, so one stale key cannot block a working bootstrap. */
+        missing: z.ZodArray<z.ZodString, "many">;
+        encoding: z.ZodEnum<["utf-8", "base64"]>;
+    }, "strip", z.ZodTypeAny, {
+        encoding: "base64" | "utf-8";
+        missing: string[];
+        secrets: {
+            key: string;
+            value: string;
+            version: number;
+        }[];}, {
+        encoding: "base64" | "utf-8";
+        missing: string[];
+        secrets: {
+            key: string;
+            value: string;
+            version: number;
+        }[];}>;
+}, "strip", z.ZodTypeAny, {
+    data: {
+        secrets: {
+            key: string;
+            value: string;
+            version: number;
+        }[];
+        missing: string[];
+        encoding: "base64" | "utf-8";
+    };
+}, {
+    data: {
+        secrets: {
+            key: string;
+            value: string;
+            version: number;
+        }[];
+        missing: string[];
+        encoding: "base64" | "utf-8";
+    };
+}>;
 export declare const SecretSettingsResponseSchema: z.ZodObject<{
     data: z.ZodObject<{
         description: z.ZodNullable<z.ZodString>;

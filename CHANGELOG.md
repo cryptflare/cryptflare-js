@@ -1,5 +1,25 @@
 # @cryptflare/sdk
 
+## 1.1.0
+
+### Minor Changes
+
+- 580b710: Reveal many secrets in one request instead of one request per key.
+
+  Every consumer looped `secrets.reveal()`, and each of those is a full worker invocation paying auth, org context, RBAC, a quota Durable Object hop and several D1 queries to move a single value. Bootstrapping a ten-file repository cost 69 requests; it now costs 10. `cf pull` over a 23-secret environment goes from 24 requests to 1.
+
+  Adds `POST .../secrets/reveal`, `secrets.revealMany()` in the SDK, and routes `cf pull`, `cf run`, `cf sync init`, `cf sync run`, `cf daemon` and `cf diff --values` through it.
+
+  The rate limit is deliberately unchanged. The server charges one unit per key against the same 30/min bucket a single reveal uses, so batching buys round trips, not budget - otherwise adding the endpoint would have turned a 30/min ceiling into 30 batches/min. Keys travel in the request body rather than the query string so they cannot reach access logs, and one audit row records the whole batch with every key named, because a queue send per key would be a subrequest per secret.
+
+  A CLI running against an API deployed before this endpoint existed falls back to single reveals on a 404; any other error propagates, so a 429 cannot fan out into N requests.
+
+### Patch Changes
+
+- 5104d94: Narrow the `zod` peer range to `^3.20.0`.
+
+  The published `dist/index.d.ts` inlines generated declarations that spell out Zod 3 generics, because the dts rollup pulls in the vendored schema files behind the exported `z.infer<>` types. Zod 4 re-arited those generics (`ZodObject` takes two parameters, `ZodEnum` a record rather than a tuple, `ZodEffects` was removed), so the shipped types produce several hundred `TS2707`/`TS2344` errors under Zod 4 - `^4.0.0` was advertising support that did not exist. Supporting Zod 4 properly means emitting plain TypeScript types and dropping the peer dependency altogether; that is tracked separately.
+
 ## 1.0.2
 
 ### Patch Changes
