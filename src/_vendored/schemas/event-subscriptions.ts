@@ -217,10 +217,10 @@ export declare const EventSubscriptionListResponseSchema: z.ZodObject<{
         createdAt: string;
         customHeaders: Record<string, string> | null;
         format?: "teams" | "raw" | "slack" | "discord" | "pagerduty" | "opsgenie" | "googlechat" | undefined;
+        createdBy?: string | undefined;
         updatedAt?: string | undefined;
         failedCount?: number | undefined;
         lastTriggeredAt?: string | null | undefined;
-        createdBy?: string | undefined;
     }[];
 }, {
     data: {
@@ -232,10 +232,10 @@ export declare const EventSubscriptionListResponseSchema: z.ZodObject<{
         createdAt: string;
         customHeaders: Record<string, string> | null;
         format?: "teams" | "raw" | "slack" | "discord" | "pagerduty" | "opsgenie" | "googlechat" | undefined;
+        createdBy?: string | undefined;
         updatedAt?: string | undefined;
         failedCount?: number | undefined;
         lastTriggeredAt?: string | null | undefined;
-        createdBy?: string | undefined;
     }[];
 }>;
 export declare const EventSubscriptionResponseSchema: z.ZodObject<{
@@ -287,10 +287,10 @@ export declare const EventSubscriptionResponseSchema: z.ZodObject<{
         createdAt: string;
         customHeaders: Record<string, string> | null;
         format?: "teams" | "raw" | "slack" | "discord" | "pagerduty" | "opsgenie" | "googlechat" | undefined;
+        createdBy?: string | undefined;
         updatedAt?: string | undefined;
         failedCount?: number | undefined;
         lastTriggeredAt?: string | null | undefined;
-        createdBy?: string | undefined;
     };
 }, {
     data: {
@@ -302,10 +302,10 @@ export declare const EventSubscriptionResponseSchema: z.ZodObject<{
         createdAt: string;
         customHeaders: Record<string, string> | null;
         format?: "teams" | "raw" | "slack" | "discord" | "pagerduty" | "opsgenie" | "googlechat" | undefined;
+        createdBy?: string | undefined;
         updatedAt?: string | undefined;
         failedCount?: number | undefined;
         lastTriggeredAt?: string | null | undefined;
-        createdBy?: string | undefined;
     };
 }>;
 export declare const EventSubscriptionSuccessResponseSchema: z.ZodObject<{

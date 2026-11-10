@@ -7,6 +7,9 @@
 export type * from './options';
 
 import type {
+  BatchItemResult as _BatchItemResult,
+  BatchResult as _BatchResult,
+  BatchSummary as _BatchSummary,
   CreateSecretBody as _CreateSecretBody,
   RevealedSecret as _RevealedSecret,
   RollbackSecretBody as _RollbackSecretBody,
@@ -161,6 +164,11 @@ export type SecretRevealManyResponse = {
   secrets: _RevealedSecret[];
   missing: string[];
   encoding: 'utf-8' | 'base64';
+  /**
+   * Cursor for the next page when revealing a whole environment; `null` on
+   * the last page. Absent on API versions that predate paging.
+   */
+  nextCursor?: string | null;
 };
 
 export type SecretListResponse = {
@@ -186,10 +194,24 @@ export type SecretSettings = {
   rules?: unknown;
 };
 
+/** Outcome of one item in a batch create, update or delete. */
+export type BatchItemResult = _BatchItemResult;
+/** Per-status counters for a batch. */
+export type BatchSummary = _BatchSummary;
+/**
+ * Result of `secrets.batchCreate`, `batchUpdate` and `batchDelete`. Batches
+ * complete inside the request, so `results` is always present.
+ */
+export type BatchResult = _BatchResult;
+
+/**
+ * @deprecated Shape of a batch job queued by an earlier API version, read
+ * through `secrets.batchStatus`. Batch methods now return {@link BatchResult}.
+ */
 export type BatchOperationResponse<T> = {
   jobId: string;
-  status: 'pending' | 'completed' | 'failed';
-  results?: T[];
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  results?: T[] | null;
 };
 
 export type WhoAmI = {

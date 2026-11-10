@@ -80,8 +80,8 @@ export declare const TeamListResponseSchema: z.ZodObject<{
         description: string | null;
         name: string;
         id: string;
-        createdAt: string;
         slug: string;
+        createdAt: string;
         createdBy: string;
         memberCount: number;
         policyCount: number;
@@ -93,8 +93,8 @@ export declare const TeamListResponseSchema: z.ZodObject<{
         description: string | null;
         name: string;
         id: string;
-        createdAt: string;
         slug: string;
+        createdAt: string;
         createdBy: string;
         memberCount: number;
         policyCount: number;
@@ -110,7 +110,7 @@ export declare const TeamSchema: z.ZodObject<{
     description: z.ZodNullable<z.ZodString>;
     created_by: z.ZodString;
     created_at: z.ZodString;
-    updated_at: z.ZodNullable<z.ZodString>;
+    updated_at: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     created_at: string;
     created_by: string;
@@ -119,7 +119,7 @@ export declare const TeamSchema: z.ZodObject<{
     name: string;
     organisation_id: string;
     slug: string;
-    updated_at: string | null;}, {
+    updated_at: string;}, {
     created_at: string;
     created_by: string;
     description: string | null;
@@ -127,7 +127,7 @@ export declare const TeamSchema: z.ZodObject<{
     name: string;
     organisation_id: string;
     slug: string;
-    updated_at: string | null;}>;
+    updated_at: string;}>;
 export declare const TeamMemberSchema: z.ZodObject<{
     id: z.ZodString;
     userId: z.ZodString;
@@ -192,7 +192,7 @@ export declare const TeamDetailResponseSchema: z.ZodObject<{
         description: z.ZodNullable<z.ZodString>;
         created_by: z.ZodString;
         created_at: z.ZodString;
-        updated_at: z.ZodNullable<z.ZodString>;
+        updated_at: z.ZodString;
     } & {
         members: z.ZodArray<z.ZodObject<{
             id: z.ZodString;
@@ -271,14 +271,14 @@ export declare const TeamDetailResponseSchema: z.ZodObject<{
             resource_id: string;
             created_at: string;
             permissions: string[];
+            team_id: string;
             effect: "allow" | "deny";
+            created_by: string;
             conditions: Record<string, unknown> | null;
             template_id: string | null;
-            created_by: string;
-            team_id: string;
         }[];
         slug: string;
-        updated_at: string | null;}, {
+        updated_at: string;}, {
         created_at: string;
         created_by: string;
         description: string | null;
@@ -300,14 +300,14 @@ export declare const TeamDetailResponseSchema: z.ZodObject<{
             resource_id: string;
             created_at: string;
             permissions: string[];
+            team_id: string;
             effect: "allow" | "deny";
+            created_by: string;
             conditions: Record<string, unknown> | null;
             template_id: string | null;
-            created_by: string;
-            team_id: string;
         }[];
         slug: string;
-        updated_at: string | null;}>;
+        updated_at: string;}>;
 }, "strip", z.ZodTypeAny, {
     data: {
         description: string | null;
@@ -326,18 +326,18 @@ export declare const TeamDetailResponseSchema: z.ZodObject<{
             resource_id: string;
             created_at: string;
             permissions: string[];
+            team_id: string;
             effect: "allow" | "deny";
+            created_by: string;
             conditions: Record<string, unknown> | null;
             template_id: string | null;
-            created_by: string;
-            team_id: string;
         }[];
         name: string;
         id: string;
         organisation_id: string;
         created_at: string;
         slug: string;
-        updated_at: string | null;
+        updated_at: string;
         created_by: string;
     };
 }, {
@@ -358,18 +358,18 @@ export declare const TeamDetailResponseSchema: z.ZodObject<{
             resource_id: string;
             created_at: string;
             permissions: string[];
+            team_id: string;
             effect: "allow" | "deny";
+            created_by: string;
             conditions: Record<string, unknown> | null;
             template_id: string | null;
-            created_by: string;
-            team_id: string;
         }[];
         name: string;
         id: string;
         organisation_id: string;
         created_at: string;
         slug: string;
-        updated_at: string | null;
+        updated_at: string;
         created_by: string;
     };
 }>;
@@ -382,7 +382,7 @@ export declare const TeamResponseSchema: z.ZodObject<{
         description: z.ZodNullable<z.ZodString>;
         created_by: z.ZodString;
         created_at: z.ZodString;
-        updated_at: z.ZodNullable<z.ZodString>;
+        updated_at: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         created_at: string;
         created_by: string;
@@ -391,7 +391,7 @@ export declare const TeamResponseSchema: z.ZodObject<{
         name: string;
         organisation_id: string;
         slug: string;
-        updated_at: string | null;}, {
+        updated_at: string;}, {
         created_at: string;
         created_by: string;
         description: string | null;
@@ -399,7 +399,7 @@ export declare const TeamResponseSchema: z.ZodObject<{
         name: string;
         organisation_id: string;
         slug: string;
-        updated_at: string | null;}>;
+        updated_at: string;}>;
 }, "strip", z.ZodTypeAny, {
     data: {
         description: string | null;
@@ -408,7 +408,7 @@ export declare const TeamResponseSchema: z.ZodObject<{
         organisation_id: string;
         created_at: string;
         slug: string;
-        updated_at: string | null;
+        updated_at: string;
         created_by: string;
     };
 }, {
@@ -419,7 +419,7 @@ export declare const TeamResponseSchema: z.ZodObject<{
         organisation_id: string;
         created_at: string;
         slug: string;
-        updated_at: string | null;
+        updated_at: string;
         created_by: string;
     };
 }>;
@@ -502,16 +502,16 @@ export declare const TeamMemberRowResponseSchema: z.ZodObject<{
     data: {
         id: string;
         created_at: string;
-        user_id: string;
         team_id: string;
+        user_id: string;
         added_by: string;
     };
 }, {
     data: {
         id: string;
         created_at: string;
-        user_id: string;
         team_id: string;
+        user_id: string;
         added_by: string;
     };
 }>;
@@ -559,11 +559,11 @@ export declare const TeamPolicyListResponseSchema: z.ZodObject<{
         resource_id: string;
         created_at: string;
         permissions: string[];
+        team_id: string;
         effect: "allow" | "deny";
+        created_by: string;
         conditions: Record<string, unknown> | null;
         template_id: string | null;
-        created_by: string;
-        team_id: string;
     }[];
 }, {
     data: {
@@ -573,11 +573,11 @@ export declare const TeamPolicyListResponseSchema: z.ZodObject<{
         resource_id: string;
         created_at: string;
         permissions: string[];
+        team_id: string;
         effect: "allow" | "deny";
+        created_by: string;
         conditions: Record<string, unknown> | null;
         template_id: string | null;
-        created_by: string;
-        team_id: string;
     }[];
 }>;
 export declare const TeamPolicyResponseSchema: z.ZodObject<{
@@ -624,11 +624,11 @@ export declare const TeamPolicyResponseSchema: z.ZodObject<{
         resource_id: string;
         created_at: string;
         permissions: string[];
+        team_id: string;
         effect: "allow" | "deny";
+        created_by: string;
         conditions: Record<string, unknown> | null;
         template_id: string | null;
-        created_by: string;
-        team_id: string;
     };
 }, {
     data: {
@@ -638,11 +638,11 @@ export declare const TeamPolicyResponseSchema: z.ZodObject<{
         resource_id: string;
         created_at: string;
         permissions: string[];
+        team_id: string;
         effect: "allow" | "deny";
+        created_by: string;
         conditions: Record<string, unknown> | null;
         template_id: string | null;
-        created_by: string;
-        team_id: string;
     };
 }>;
 export declare const CreateTeamInputSchema: z.ZodObject<{

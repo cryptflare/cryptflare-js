@@ -41,6 +41,45 @@ export declare const ServiceTokenItemSchema: z.ZodObject<{
     name: string;
     scopes: string[];
     tokenPrefix: string;}>;
+/**
+ * The service token as `PATCH /service-tokens/:tokenId` returns it. Narrower
+ * than the list item: the update handler does not return `disabled` or
+ * `createdBy`.
+ */
+export declare const UpdatedServiceTokenSchema: z.ZodObject<Omit<{
+    id: z.ZodString;
+    name: z.ZodString;
+    description: z.ZodNullable<z.ZodString>;
+    tokenPrefix: z.ZodString;
+    scopes: z.ZodArray<z.ZodString, "many">;
+    ipAllowlist: z.ZodNullable<z.ZodArray<z.ZodString, "many">>;
+    disabled: z.ZodNumber;
+    expiresAt: z.ZodNullable<z.ZodString>;
+    lastUsedAt: z.ZodNullable<z.ZodString>;
+    lastUsedIp: z.ZodNullable<z.ZodString>;
+    createdBy: z.ZodString;
+    createdAt: z.ZodString;
+}, "disabled" | "createdBy">, "strip", z.ZodTypeAny, {
+    createdAt: string;
+    description: string | null;
+    expiresAt: string | null;
+    id: string;
+    ipAllowlist: string[] | null;
+    lastUsedAt: string | null;
+    lastUsedIp: string | null;
+    name: string;
+    scopes: string[];
+    tokenPrefix: string;}, {
+    createdAt: string;
+    description: string | null;
+    expiresAt: string | null;
+    id: string;
+    ipAllowlist: string[] | null;
+    lastUsedAt: string | null;
+    lastUsedIp: string | null;
+    name: string;
+    scopes: string[];
+    tokenPrefix: string;}>;
 export declare const CreateServiceTokenBodySchema: z.ZodObject<{
     name: z.ZodString;
     description: z.ZodOptional<z.ZodString>;
@@ -155,10 +194,10 @@ export declare const ServiceTokenListResponseSchema: z.ZodObject<{
         id: string;
         ipAllowlist: string[] | null;
         createdAt: string;
-        createdBy: string;
         expiresAt: string | null;
-        tokenPrefix: string;
         scopes: string[];
+        tokenPrefix: string;
+        createdBy: string;
         lastUsedAt: string | null;
         lastUsedIp: string | null;
     }[];
@@ -170,16 +209,16 @@ export declare const ServiceTokenListResponseSchema: z.ZodObject<{
         id: string;
         ipAllowlist: string[] | null;
         createdAt: string;
-        createdBy: string;
         expiresAt: string | null;
-        tokenPrefix: string;
         scopes: string[];
+        tokenPrefix: string;
+        createdBy: string;
         lastUsedAt: string | null;
         lastUsedIp: string | null;
     }[];
 }>;
 export declare const ServiceTokenItemResponseSchema: z.ZodObject<{
-    data: z.ZodObject<{
+    data: z.ZodObject<Omit<{
         id: z.ZodString;
         name: z.ZodString;
         description: z.ZodNullable<z.ZodString>;
@@ -192,11 +231,9 @@ export declare const ServiceTokenItemResponseSchema: z.ZodObject<{
         lastUsedIp: z.ZodNullable<z.ZodString>;
         createdBy: z.ZodString;
         createdAt: z.ZodString;
-    }, "strip", z.ZodTypeAny, {
+    }, "disabled" | "createdBy">, "strip", z.ZodTypeAny, {
         createdAt: string;
-        createdBy: string;
         description: string | null;
-        disabled: number;
         expiresAt: string | null;
         id: string;
         ipAllowlist: string[] | null;
@@ -206,9 +243,7 @@ export declare const ServiceTokenItemResponseSchema: z.ZodObject<{
         scopes: string[];
         tokenPrefix: string;}, {
         createdAt: string;
-        createdBy: string;
         description: string | null;
-        disabled: number;
         expiresAt: string | null;
         id: string;
         ipAllowlist: string[] | null;
@@ -219,31 +254,27 @@ export declare const ServiceTokenItemResponseSchema: z.ZodObject<{
         tokenPrefix: string;}>;
 }, "strip", z.ZodTypeAny, {
     data: {
-        disabled: number;
         description: string | null;
         name: string;
         id: string;
         ipAllowlist: string[] | null;
         createdAt: string;
-        createdBy: string;
         expiresAt: string | null;
-        tokenPrefix: string;
         scopes: string[];
+        tokenPrefix: string;
         lastUsedAt: string | null;
         lastUsedIp: string | null;
     };
 }, {
     data: {
-        disabled: number;
         description: string | null;
         name: string;
         id: string;
         ipAllowlist: string[] | null;
         createdAt: string;
-        createdBy: string;
         expiresAt: string | null;
-        tokenPrefix: string;
         scopes: string[];
+        tokenPrefix: string;
         lastUsedAt: string | null;
         lastUsedIp: string | null;
     };
@@ -287,8 +318,8 @@ export declare const CreatedServiceTokenResponseSchema: z.ZodObject<{
         ipAllowlist: string[] | null;
         createdAt: string;
         expiresAt: string | null;
-        tokenPrefix: string;
         scopes: string[];
+        tokenPrefix: string;
     };
 }, {
     data: {
@@ -299,8 +330,8 @@ export declare const CreatedServiceTokenResponseSchema: z.ZodObject<{
         ipAllowlist: string[] | null;
         createdAt: string;
         expiresAt: string | null;
-        tokenPrefix: string;
         scopes: string[];
+        tokenPrefix: string;
     };
 }>;
 export declare const ServiceTokenSuccessResponseSchema: z.ZodObject<{
@@ -311,6 +342,7 @@ export declare const ServiceTokenSuccessResponseSchema: z.ZodObject<{
     success: boolean;
 }>;
 export type ServiceTokenItem = z.infer<typeof ServiceTokenItemSchema>;
+export type UpdatedServiceToken = z.infer<typeof UpdatedServiceTokenSchema>;
 export type CreateServiceTokenBody = z.infer<typeof CreateServiceTokenBodySchema>;
 export type CreatedServiceToken = z.infer<typeof CreatedServiceTokenSchema>;
 export type UpdateServiceTokenBody = z.infer<typeof UpdateServiceTokenBodySchema>;

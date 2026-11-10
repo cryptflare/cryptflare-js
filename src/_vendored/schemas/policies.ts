@@ -112,11 +112,11 @@ export declare const GlobalPolicyListResponseSchema: z.ZodObject<{
         created_at: string;
         permissions: string[];
         updated_at: string | null;
-        resource_pattern: string;
         effect: "allow" | "deny";
+        resource_pattern: string;
+        created_by: string;
         conditions: Record<string, unknown> | null;
         template_id: string | null;
-        created_by: string;
     }[];
 }, {
     data: {
@@ -128,11 +128,11 @@ export declare const GlobalPolicyListResponseSchema: z.ZodObject<{
         created_at: string;
         permissions: string[];
         updated_at: string | null;
-        resource_pattern: string;
         effect: "allow" | "deny";
+        resource_pattern: string;
+        created_by: string;
         conditions: Record<string, unknown> | null;
         template_id: string | null;
-        created_by: string;
     }[];
 }>;
 export declare const OrgTeamPolicySchema: z.ZodObject<{
@@ -226,11 +226,11 @@ export declare const OrgTeamPolicyListResponseSchema: z.ZodObject<{
         resource_id: string;
         created_at: string;
         permissions: string[];
+        team_id: string;
         effect: "allow" | "deny";
+        created_by: string;
         conditions: Record<string, unknown> | null;
         template_id: string | null;
-        created_by: string;
-        team_id: string;
         team_name: string;
         team_slug: string;
     }[];
@@ -242,11 +242,11 @@ export declare const OrgTeamPolicyListResponseSchema: z.ZodObject<{
         resource_id: string;
         created_at: string;
         permissions: string[];
+        team_id: string;
         effect: "allow" | "deny";
+        created_by: string;
         conditions: Record<string, unknown> | null;
         template_id: string | null;
-        created_by: string;
-        team_id: string;
         team_name: string;
         team_slug: string;
     }[];
@@ -303,11 +303,11 @@ export declare const GlobalPolicyResponseSchema: z.ZodObject<{
         created_at: string;
         permissions: string[];
         updated_at: string | null;
-        resource_pattern: string;
         effect: "allow" | "deny";
+        resource_pattern: string;
+        created_by: string;
         conditions: Record<string, unknown> | null;
         template_id: string | null;
-        created_by: string;
     };
 }, {
     data: {
@@ -319,11 +319,11 @@ export declare const GlobalPolicyResponseSchema: z.ZodObject<{
         created_at: string;
         permissions: string[];
         updated_at: string | null;
-        resource_pattern: string;
         effect: "allow" | "deny";
+        resource_pattern: string;
+        created_by: string;
         conditions: Record<string, unknown> | null;
         template_id: string | null;
-        created_by: string;
     };
 }>;
 export declare const ScopedGlobalPolicyResponseSchema: z.ZodObject<{
@@ -379,11 +379,11 @@ export declare const ScopedGlobalPolicyResponseSchema: z.ZodObject<{
         created_at: string;
         permissions: string[];
         updated_at: string | null;
-        resource_pattern: string;
         effect: "allow" | "deny";
+        resource_pattern: string;
+        created_by: string;
         conditions: Record<string, unknown> | null;
         template_id: string | null;
-        created_by: string;
     };
     scope: "global";}, {
     data: {
@@ -395,11 +395,11 @@ export declare const ScopedGlobalPolicyResponseSchema: z.ZodObject<{
         created_at: string;
         permissions: string[];
         updated_at: string | null;
-        resource_pattern: string;
         effect: "allow" | "deny";
+        resource_pattern: string;
+        created_by: string;
         conditions: Record<string, unknown> | null;
         template_id: string | null;
-        created_by: string;
     };
     scope: "global";}>;
 export declare const PoliciesTeamPolicySchema: z.ZodObject<{
@@ -482,11 +482,11 @@ export declare const ScopedTeamPolicyResponseSchema: z.ZodObject<{
         resource_id: string;
         created_at: string;
         permissions: string[];
+        team_id: string;
         effect: "allow" | "deny";
+        created_by: string;
         conditions: Record<string, unknown> | null;
         template_id: string | null;
-        created_by: string;
-        team_id: string;
     };
     scope: "team";}, {
     data: {
@@ -496,11 +496,11 @@ export declare const ScopedTeamPolicyResponseSchema: z.ZodObject<{
         resource_id: string;
         created_at: string;
         permissions: string[];
+        team_id: string;
         effect: "allow" | "deny";
+        created_by: string;
         conditions: Record<string, unknown> | null;
         template_id: string | null;
-        created_by: string;
-        team_id: string;
     };
     scope: "team";}>;
 export declare const SimulationResponseSchema: z.ZodObject<{
@@ -635,10 +635,10 @@ export declare const AccessRequestResponseSchema: z.ZodObject<{
         resource_id: string;
         created_at: string;
         permissions: string[];
-        requester_id: string;
         duration_hours: number;
         reviewed_by: string | null;
         reviewed_at: string | null;
+        requester_id: string;
     };
 }, {
     data: {
@@ -650,10 +650,10 @@ export declare const AccessRequestResponseSchema: z.ZodObject<{
         resource_id: string;
         created_at: string;
         permissions: string[];
-        requester_id: string;
         duration_hours: number;
         reviewed_by: string | null;
         reviewed_at: string | null;
+        requester_id: string;
     };
 }>;
 export declare const AccessRequestListResponseSchema: z.ZodObject<{
@@ -706,10 +706,10 @@ export declare const AccessRequestListResponseSchema: z.ZodObject<{
         resource_id: string;
         created_at: string;
         permissions: string[];
-        requester_id: string;
         duration_hours: number;
         reviewed_by: string | null;
         reviewed_at: string | null;
+        requester_id: string;
     }[];
     total: number;}, {
     data: {
@@ -721,10 +721,10 @@ export declare const AccessRequestListResponseSchema: z.ZodObject<{
         resource_id: string;
         created_at: string;
         permissions: string[];
-        requester_id: string;
         duration_hours: number;
         reviewed_by: string | null;
         reviewed_at: string | null;
+        requester_id: string;
     }[];
     total: number;}>;
 export declare const ApprovedAccessResponseSchema: z.ZodObject<{
@@ -1018,8 +1018,8 @@ export declare const PolicyTemplateListResponseSchema: z.ZodObject<{
         category: string;
         id: string;
         permissions: string[];
-        severity: string;
         effect: "allow" | "deny";
+        severity: string;
         conditions: Record<string, unknown>;
         icon: string;
         resourcePattern: string;
@@ -1041,8 +1041,8 @@ export declare const PolicyTemplateListResponseSchema: z.ZodObject<{
         category: string;
         id: string;
         permissions: string[];
-        severity: string;
         effect: "allow" | "deny";
+        severity: string;
         conditions: Record<string, unknown>;
         icon: string;
         resourcePattern: string;
@@ -1134,8 +1134,8 @@ export declare const PolicyTemplateResponseSchema: z.ZodObject<{
         category: string;
         id: string;
         permissions: string[];
-        severity: string;
         effect: "allow" | "deny";
+        severity: string;
         conditions: Record<string, unknown>;
         icon: string;
         resourcePattern: string;
@@ -1157,8 +1157,8 @@ export declare const PolicyTemplateResponseSchema: z.ZodObject<{
         category: string;
         id: string;
         permissions: string[];
-        severity: string;
         effect: "allow" | "deny";
+        severity: string;
         conditions: Record<string, unknown>;
         icon: string;
         resourcePattern: string;
@@ -1329,8 +1329,8 @@ export declare const ImportPoliciesInputSchema: z.ZodObject<{
     global_policies?: {
         name: string;
         permissions: string[];
-        resource_pattern: string;
         effect: string;
+        resource_pattern: string;
         enabled?: boolean | undefined;
         priority?: number | undefined;
         conditions?: Record<string, unknown> | undefined;
@@ -1350,8 +1350,8 @@ export declare const ImportPoliciesInputSchema: z.ZodObject<{
     global_policies?: {
         name: string;
         permissions: string[];
-        resource_pattern: string;
         effect: string;
+        resource_pattern: string;
         enabled?: boolean | undefined;
         priority?: number | undefined;
         conditions?: Record<string, unknown> | undefined;
@@ -1444,4 +1444,148 @@ export type ImportPoliciesInput = z.infer<typeof ImportPoliciesInputSchema>;
 export type CreateAccessRequestInput = z.infer<typeof CreateAccessRequestInputSchema>;
 export type ApplyPolicyTemplateInput = z.infer<typeof ApplyPolicyTemplateInputSchema>;
 export type ApproveAccessRequestInput = z.infer<typeof ApproveAccessRequestInputSchema>;
+/** Query parameters read by `GET /policies/export`. */
+export declare const ExportPoliciesQuerySchema: z.ZodObject<{
+    format: z.ZodOptional<z.ZodEnum<["json", "yaml"]>>;
+}, "strip", z.ZodTypeAny, {
+    format?: "json" | "yaml" | undefined;
+}, {
+    format?: "json" | "yaml" | undefined;
+}>;
+/** Query parameters read by `GET /policies/library`. */
+export declare const ListPolicyTemplatesQuerySchema: z.ZodObject<{
+    category: z.ZodOptional<z.ZodEnum<["access-control", "production", "time", "network", "hygiene", "compliance", "incident", "dynamic-secrets"]>>;
+    severity: z.ZodOptional<z.ZodEnum<["critical", "high", "medium", "low"]>>;
+}, "strip", z.ZodTypeAny, {
+    category?: "access-control" | "production" | "time" | "network" | "hygiene" | "compliance" | "incident" | "dynamic-secrets" | undefined;
+    severity?: "low" | "medium" | "high" | "critical" | undefined;}, {
+    category?: "access-control" | "production" | "time" | "network" | "hygiene" | "compliance" | "incident" | "dynamic-secrets" | undefined;
+    severity?: "low" | "medium" | "high" | "critical" | undefined;}>;
+/**
+ * Body of `GET /policies/export` in its JSON form. `?format=yaml` returns the
+ * same document serialised as YAML with a `text/yaml` content type.
+ */
+export declare const PolicyExportResponseSchema: z.ZodObject<{
+    version: z.ZodNumber;
+    exported_at: z.ZodString;
+    organisation_id: z.ZodString;
+    teams: z.ZodArray<z.ZodObject<{
+        name: z.ZodString;
+        slug: z.ZodString;
+        description: z.ZodNullable<z.ZodString>;
+        members: z.ZodArray<z.ZodString, "many">;
+        policies: z.ZodArray<z.ZodObject<{
+            resource_type: z.ZodString;
+            resource_id: z.ZodNullable<z.ZodString>;
+            permissions: z.ZodUnknown;
+            effect: z.ZodString;
+            conditions: z.ZodUnknown;
+        }, "strip", z.ZodTypeAny, {
+            conditions?: unknown;
+            effect: string;
+            permissions?: unknown;
+            resource_id: string | null;
+            resource_type: string;}, {
+            conditions?: unknown;
+            effect: string;
+            permissions?: unknown;
+            resource_id: string | null;
+            resource_type: string;}>, "many">;
+    }, "strip", z.ZodTypeAny, {
+        description: string | null;
+        members: string[];
+        name: string;
+        policies: {
+            resource_type: string;
+            resource_id: string | null;
+            effect: string;
+            permissions?: unknown;
+            conditions?: unknown;
+        }[];
+        slug: string;}, {
+        description: string | null;
+        members: string[];
+        name: string;
+        policies: {
+            resource_type: string;
+            resource_id: string | null;
+            effect: string;
+            permissions?: unknown;
+            conditions?: unknown;
+        }[];
+        slug: string;}>, "many">;
+    global_policies: z.ZodArray<z.ZodObject<{
+        name: z.ZodString;
+        resource_pattern: z.ZodString;
+        permissions: z.ZodUnknown;
+        effect: z.ZodString;
+        conditions: z.ZodUnknown;
+        priority: z.ZodNumber;
+        enabled: z.ZodBoolean;
+    }, "strip", z.ZodTypeAny, {
+        conditions?: unknown;
+        effect: string;
+        enabled: boolean;
+        name: string;
+        permissions?: unknown;
+        priority: number;
+        resource_pattern: string;}, {
+        conditions?: unknown;
+        effect: string;
+        enabled: boolean;
+        name: string;
+        permissions?: unknown;
+        priority: number;
+        resource_pattern: string;}>, "many">;
+}, "strip", z.ZodTypeAny, {
+    exported_at: string;
+    global_policies: {
+        enabled: boolean;
+        name: string;
+        priority: number;
+        effect: string;
+        resource_pattern: string;
+        permissions?: unknown;
+        conditions?: unknown;
+    }[];
+    organisation_id: string;
+    teams: {
+        description: string | null;
+        members: string[];
+        policies: {
+            resource_type: string;
+            resource_id: string | null;
+            effect: string;
+            permissions?: unknown;
+            conditions?: unknown;
+        }[];
+        name: string;
+        slug: string;
+    }[];
+    version: number;}, {
+    exported_at: string;
+    global_policies: {
+        enabled: boolean;
+        name: string;
+        priority: number;
+        effect: string;
+        resource_pattern: string;
+        permissions?: unknown;
+        conditions?: unknown;
+    }[];
+    organisation_id: string;
+    teams: {
+        description: string | null;
+        members: string[];
+        policies: {
+            resource_type: string;
+            resource_id: string | null;
+            effect: string;
+            permissions?: unknown;
+            conditions?: unknown;
+        }[];
+        name: string;
+        slug: string;
+    }[];
+    version: number;}>;
 //# sourceMappingURL=policies.d.ts.map

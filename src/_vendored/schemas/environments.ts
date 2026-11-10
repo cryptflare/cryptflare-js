@@ -28,6 +28,31 @@ export declare const EnvironmentItemSchema: z.ZodObject<{
     name: string;
     slug: string;
     workspace_id: string;}>;
+/** One row of the environment list: the environment plus its counts. */
+export declare const EnvironmentListItemSchema: z.ZodObject<{
+    id: z.ZodString;
+    workspace_id: z.ZodString;
+    name: z.ZodString;
+    slug: z.ZodString;
+    created_at: z.ZodString;
+} & {
+    secrets_count: z.ZodNumber;
+    pods_count: z.ZodNumber;
+}, "strip", z.ZodTypeAny, {
+    created_at: string;
+    id: string;
+    name: string;
+    pods_count: number;
+    secrets_count: number;
+    slug: string;
+    workspace_id: string;}, {
+    created_at: string;
+    id: string;
+    name: string;
+    pods_count: number;
+    secrets_count: number;
+    slug: string;
+    workspace_id: string;}>;
 export declare const ResolvedPodPayloadSchema: z.ZodObject<{
     id: z.ZodString;
     environmentId: z.ZodString;
@@ -285,11 +310,11 @@ export declare const ResolvePathResponseSchema: z.ZodObject<{
             locked: number;
             key: string;
             id: string;
+            version: number;
             createdAt: string;
+            updatedAt: string;
             environmentId: string;
             podId: string | null;
-            version: number;
-            updatedAt: string;
         };
         type: "secret";}, {
         pod: {
@@ -310,11 +335,11 @@ export declare const ResolvePathResponseSchema: z.ZodObject<{
             locked: number;
             key: string;
             id: string;
+            version: number;
             createdAt: string;
+            updatedAt: string;
             environmentId: string;
             podId: string | null;
-            version: number;
-            updatedAt: string;
         };
         type: "secret";}>]>;
 }, "strip", z.ZodTypeAny, {
@@ -345,11 +370,11 @@ export declare const ResolvePathResponseSchema: z.ZodObject<{
             locked: number;
             key: string;
             id: string;
+            version: number;
             createdAt: string;
+            updatedAt: string;
             environmentId: string;
             podId: string | null;
-            version: number;
-            updatedAt: string;
         };
         pod: {
             description: string | null;
@@ -394,11 +419,11 @@ export declare const ResolvePathResponseSchema: z.ZodObject<{
             locked: number;
             key: string;
             id: string;
+            version: number;
             createdAt: string;
+            updatedAt: string;
             environmentId: string;
             podId: string | null;
-            version: number;
-            updatedAt: string;
         };
         pod: {
             description: string | null;
@@ -423,15 +448,22 @@ export declare const EnvironmentListResponseSchema: z.ZodObject<{
         name: z.ZodString;
         slug: z.ZodString;
         created_at: z.ZodString;
+    } & {
+        secrets_count: z.ZodNumber;
+        pods_count: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
         created_at: string;
         id: string;
         name: string;
+        pods_count: number;
+        secrets_count: number;
         slug: string;
         workspace_id: string;}, {
         created_at: string;
         id: string;
         name: string;
+        pods_count: number;
+        secrets_count: number;
         slug: string;
         workspace_id: string;}>, "many">;
 }, "strip", z.ZodTypeAny, {
@@ -441,6 +473,8 @@ export declare const EnvironmentListResponseSchema: z.ZodObject<{
         created_at: string;
         slug: string;
         workspace_id: string;
+        secrets_count: number;
+        pods_count: number;
     }[];
 }, {
     data: {
@@ -449,6 +483,8 @@ export declare const EnvironmentListResponseSchema: z.ZodObject<{
         created_at: string;
         slug: string;
         workspace_id: string;
+        secrets_count: number;
+        pods_count: number;
     }[];
 }>;
 export declare const EnvironmentResponseSchema: z.ZodObject<{
@@ -499,7 +535,16 @@ export declare const DeleteEnvironmentResponseSchema: z.ZodObject<{
     success: boolean;}>;
 export type CreateEnvironmentBody = z.infer<typeof CreateEnvironmentBodySchema>;
 export type EnvironmentItem = z.infer<typeof EnvironmentItemSchema>;
+export type EnvironmentListItem = z.infer<typeof EnvironmentListItemSchema>;
 export type ResolvedPodPayload = z.infer<typeof ResolvedPodPayloadSchema>;
 export type ResolvedSecretPayload = z.infer<typeof ResolvedSecretPayloadSchema>;
 export type ResolvePathResponse = z.infer<typeof ResolvePathResponseSchema>;
+/** Query parameters read by `GET /environments/:env/resolve-path`. */
+export declare const ResolvePathQuerySchema: z.ZodObject<{
+    path: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    path?: string | undefined;
+}, {
+    path?: string | undefined;
+}>;
 //# sourceMappingURL=environments.d.ts.map

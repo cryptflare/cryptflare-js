@@ -8,6 +8,7 @@ export declare const TokenItemSchema: z.ZodObject<{
     name: z.ZodString;
     tokenPrefix: z.ZodString;
     scopes: z.ZodArray<z.ZodString, "many">;
+    disabled: z.ZodNumber;
     createdBy: z.ZodString;
     expiresAt: z.ZodNullable<z.ZodString>;
     lastUsedAt: z.ZodNullable<z.ZodString>;
@@ -16,6 +17,7 @@ export declare const TokenItemSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     createdAt: string;
     createdBy: string;
+    disabled: number;
     expiresAt: string | null;
     id: string;
     ipAllowlist: string[] | null;
@@ -25,6 +27,39 @@ export declare const TokenItemSchema: z.ZodObject<{
     tokenPrefix: string;}, {
     createdAt: string;
     createdBy: string;
+    disabled: number;
+    expiresAt: string | null;
+    id: string;
+    ipAllowlist: string[] | null;
+    lastUsedAt: string | null;
+    name: string;
+    scopes: string[];
+    tokenPrefix: string;}>;
+/**
+ * The token as `PATCH /tokens/:tokenId` returns it. Narrower than the list
+ * item: the update handler does not return `createdBy` or `disabled`.
+ */
+export declare const UpdatedTokenSchema: z.ZodObject<Omit<{
+    id: z.ZodString;
+    name: z.ZodString;
+    tokenPrefix: z.ZodString;
+    scopes: z.ZodArray<z.ZodString, "many">;
+    disabled: z.ZodNumber;
+    createdBy: z.ZodString;
+    expiresAt: z.ZodNullable<z.ZodString>;
+    lastUsedAt: z.ZodNullable<z.ZodString>;
+    ipAllowlist: z.ZodNullable<z.ZodArray<z.ZodString, "many">>;
+    createdAt: z.ZodString;
+}, "disabled" | "createdBy">, "strip", z.ZodTypeAny, {
+    createdAt: string;
+    expiresAt: string | null;
+    id: string;
+    ipAllowlist: string[] | null;
+    lastUsedAt: string | null;
+    name: string;
+    scopes: string[];
+    tokenPrefix: string;}, {
+    createdAt: string;
     expiresAt: string | null;
     id: string;
     ipAllowlist: string[] | null;
@@ -78,6 +113,34 @@ export declare const CreatedTokenSchema: z.ZodObject<{
     scopes: string[];
     token: string;
     tokenPrefix: string;}>;
+/**
+ * The token as `POST /v1/tokens/claim` returns it. The redeem handler does
+ * not return `ipAllowlist`.
+ */
+export declare const ClaimedTokenSchema: z.ZodObject<Omit<{
+    id: z.ZodString;
+    name: z.ZodString;
+    token: z.ZodString;
+    tokenPrefix: z.ZodString;
+    scopes: z.ZodArray<z.ZodString, "many">;
+    expiresAt: z.ZodNullable<z.ZodString>;
+    ipAllowlist: z.ZodNullable<z.ZodArray<z.ZodString, "many">>;
+    createdAt: z.ZodString;
+}, "ipAllowlist">, "strip", z.ZodTypeAny, {
+    createdAt: string;
+    expiresAt: string | null;
+    id: string;
+    name: string;
+    scopes: string[];
+    token: string;
+    tokenPrefix: string;}, {
+    createdAt: string;
+    expiresAt: string | null;
+    id: string;
+    name: string;
+    scopes: string[];
+    token: string;
+    tokenPrefix: string;}>;
 export declare const UpdateTokenBodySchema: z.ZodObject<{
     name: z.ZodOptional<z.ZodString>;
     scopes: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
@@ -119,6 +182,7 @@ export declare const TokenListResponseSchema: z.ZodObject<{
         name: z.ZodString;
         tokenPrefix: z.ZodString;
         scopes: z.ZodArray<z.ZodString, "many">;
+        disabled: z.ZodNumber;
         createdBy: z.ZodString;
         expiresAt: z.ZodNullable<z.ZodString>;
         lastUsedAt: z.ZodNullable<z.ZodString>;
@@ -127,6 +191,7 @@ export declare const TokenListResponseSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         createdAt: string;
         createdBy: string;
+        disabled: number;
         expiresAt: string | null;
         id: string;
         ipAllowlist: string[] | null;
@@ -136,6 +201,7 @@ export declare const TokenListResponseSchema: z.ZodObject<{
         tokenPrefix: string;}, {
         createdAt: string;
         createdBy: string;
+        disabled: number;
         expiresAt: string | null;
         id: string;
         ipAllowlist: string[] | null;
@@ -145,43 +211,45 @@ export declare const TokenListResponseSchema: z.ZodObject<{
         tokenPrefix: string;}>, "many">;
 }, "strip", z.ZodTypeAny, {
     data: {
+        disabled: number;
         name: string;
         id: string;
         ipAllowlist: string[] | null;
         createdAt: string;
-        createdBy: string;
         expiresAt: string | null;
-        tokenPrefix: string;
         scopes: string[];
+        tokenPrefix: string;
+        createdBy: string;
         lastUsedAt: string | null;
     }[];
 }, {
     data: {
+        disabled: number;
         name: string;
         id: string;
         ipAllowlist: string[] | null;
         createdAt: string;
-        createdBy: string;
         expiresAt: string | null;
-        tokenPrefix: string;
         scopes: string[];
+        tokenPrefix: string;
+        createdBy: string;
         lastUsedAt: string | null;
     }[];
 }>;
 export declare const TokenItemResponseSchema: z.ZodObject<{
-    data: z.ZodObject<{
+    data: z.ZodObject<Omit<{
         id: z.ZodString;
         name: z.ZodString;
         tokenPrefix: z.ZodString;
         scopes: z.ZodArray<z.ZodString, "many">;
+        disabled: z.ZodNumber;
         createdBy: z.ZodString;
         expiresAt: z.ZodNullable<z.ZodString>;
         lastUsedAt: z.ZodNullable<z.ZodString>;
         ipAllowlist: z.ZodNullable<z.ZodArray<z.ZodString, "many">>;
         createdAt: z.ZodString;
-    }, "strip", z.ZodTypeAny, {
+    }, "disabled" | "createdBy">, "strip", z.ZodTypeAny, {
         createdAt: string;
-        createdBy: string;
         expiresAt: string | null;
         id: string;
         ipAllowlist: string[] | null;
@@ -190,7 +258,6 @@ export declare const TokenItemResponseSchema: z.ZodObject<{
         scopes: string[];
         tokenPrefix: string;}, {
         createdAt: string;
-        createdBy: string;
         expiresAt: string | null;
         id: string;
         ipAllowlist: string[] | null;
@@ -204,10 +271,9 @@ export declare const TokenItemResponseSchema: z.ZodObject<{
         id: string;
         ipAllowlist: string[] | null;
         createdAt: string;
-        createdBy: string;
         expiresAt: string | null;
-        tokenPrefix: string;
         scopes: string[];
+        tokenPrefix: string;
         lastUsedAt: string | null;
     };
 }, {
@@ -216,10 +282,9 @@ export declare const TokenItemResponseSchema: z.ZodObject<{
         id: string;
         ipAllowlist: string[] | null;
         createdAt: string;
-        createdBy: string;
         expiresAt: string | null;
-        tokenPrefix: string;
         scopes: string[];
+        tokenPrefix: string;
         lastUsedAt: string | null;
     };
 }>;
@@ -258,8 +323,8 @@ export declare const CreatedTokenResponseSchema: z.ZodObject<{
         ipAllowlist: string[] | null;
         createdAt: string;
         expiresAt: string | null;
-        tokenPrefix: string;
         scopes: string[];
+        tokenPrefix: string;
     };
 }, {
     data: {
@@ -269,8 +334,8 @@ export declare const CreatedTokenResponseSchema: z.ZodObject<{
         ipAllowlist: string[] | null;
         createdAt: string;
         expiresAt: string | null;
-        tokenPrefix: string;
         scopes: string[];
+        tokenPrefix: string;
     };
 }>;
 export declare const TokenSuccessResponseSchema: z.ZodObject<{
@@ -306,8 +371,10 @@ export declare const ClaimLinkResponseSchema: z.ZodObject<{
     };
 }>;
 export type TokenItem = z.infer<typeof TokenItemSchema>;
+export type UpdatedToken = z.infer<typeof UpdatedTokenSchema>;
 export type CreateTokenBody = z.infer<typeof CreateTokenBodySchema>;
 export type CreatedToken = z.infer<typeof CreatedTokenSchema>;
+export type ClaimedToken = z.infer<typeof ClaimedTokenSchema>;
 export type UpdateTokenBody = z.infer<typeof UpdateTokenBodySchema>;
 export type ToggleTokenBody = z.infer<typeof ToggleTokenBodySchema>;
 export type CreateClaimLinkBody = z.infer<typeof CreateClaimLinkBodySchema>;

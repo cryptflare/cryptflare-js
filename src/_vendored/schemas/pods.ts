@@ -3,6 +3,7 @@
  * Move-only extraction from `apps/api/src/routes/pods/index.ts`.
  */
 import { z } from 'zod';
+/** A pod as list and get return it: camelCase, with the creator's details. */
 export declare const PodItemSchema: z.ZodObject<{
     id: z.ZodString;
     environmentId: z.ZodString;
@@ -38,6 +39,39 @@ export declare const PodItemSchema: z.ZodObject<{
     parentId: string | null;
     slug: string;
     updatedAt: string;}>;
+/**
+ * A pod as create and update return it: the database row, snake_case, without
+ * the creator's name or email.
+ */
+export declare const PodRowSchema: z.ZodObject<{
+    id: z.ZodString;
+    environment_id: z.ZodString;
+    parent_id: z.ZodNullable<z.ZodString>;
+    name: z.ZodString;
+    slug: z.ZodString;
+    description: z.ZodNullable<z.ZodString>;
+    created_by: z.ZodString;
+    created_at: z.ZodString;
+    updated_at: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    created_at: string;
+    created_by: string;
+    description: string | null;
+    environment_id: string;
+    id: string;
+    name: string;
+    parent_id: string | null;
+    slug: string;
+    updated_at: string;}, {
+    created_at: string;
+    created_by: string;
+    description: string | null;
+    environment_id: string;
+    id: string;
+    name: string;
+    parent_id: string | null;
+    slug: string;
+    updated_at: string;}>;
 export declare const CreatePodBodySchema: z.ZodObject<{
     name: z.ZodString;
     slug: z.ZodString;
@@ -118,13 +152,13 @@ export declare const PodListResponseSchema: z.ZodObject<{
         description: string | null;
         name: string;
         id: string;
-        createdAt: string;
         slug: string;
-        environmentId: string;
-        parentId: string | null;
-        updatedAt: string;
+        createdAt: string;
         createdBy: string;
         createdByName: string | null;
+        updatedAt: string;
+        environmentId: string;
+        parentId: string | null;
         createdByEmail: string | null;
     }[];
 }, {
@@ -132,79 +166,69 @@ export declare const PodListResponseSchema: z.ZodObject<{
         description: string | null;
         name: string;
         id: string;
-        createdAt: string;
         slug: string;
-        environmentId: string;
-        parentId: string | null;
-        updatedAt: string;
+        createdAt: string;
         createdBy: string;
         createdByName: string | null;
+        updatedAt: string;
+        environmentId: string;
+        parentId: string | null;
         createdByEmail: string | null;
     }[];
 }>;
 export declare const PodResponseSchema: z.ZodObject<{
     data: z.ZodObject<{
         id: z.ZodString;
-        environmentId: z.ZodString;
-        parentId: z.ZodNullable<z.ZodString>;
+        environment_id: z.ZodString;
+        parent_id: z.ZodNullable<z.ZodString>;
         name: z.ZodString;
         slug: z.ZodString;
         description: z.ZodNullable<z.ZodString>;
-        createdBy: z.ZodString;
-        createdByName: z.ZodNullable<z.ZodString>;
-        createdByEmail: z.ZodNullable<z.ZodString>;
-        createdAt: z.ZodString;
-        updatedAt: z.ZodString;
+        created_by: z.ZodString;
+        created_at: z.ZodString;
+        updated_at: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        createdAt: string;
-        createdBy: string;
-        createdByEmail: string | null;
-        createdByName: string | null;
+        created_at: string;
+        created_by: string;
         description: string | null;
-        environmentId: string;
+        environment_id: string;
         id: string;
         name: string;
-        parentId: string | null;
+        parent_id: string | null;
         slug: string;
-        updatedAt: string;}, {
-        createdAt: string;
-        createdBy: string;
-        createdByEmail: string | null;
-        createdByName: string | null;
+        updated_at: string;}, {
+        created_at: string;
+        created_by: string;
         description: string | null;
-        environmentId: string;
+        environment_id: string;
         id: string;
         name: string;
-        parentId: string | null;
+        parent_id: string | null;
         slug: string;
-        updatedAt: string;}>;
+        updated_at: string;}>;
 }, "strip", z.ZodTypeAny, {
     data: {
         description: string | null;
         name: string;
         id: string;
-        createdAt: string;
+        created_at: string;
         slug: string;
-        environmentId: string;
-        parentId: string | null;
-        updatedAt: string;
-        createdBy: string;
-        createdByName: string | null;
-        createdByEmail: string | null;
+        updated_at: string;
+        environment_id: string;
+        parent_id: string | null;
+        created_by: string;
     };
 }, {
     data: {
         description: string | null;
         name: string;
         id: string;
-        createdAt: string;
+        created_at: string;
         slug: string;
-        environmentId: string;
-        parentId: string | null;
-        updatedAt: string;
-        createdBy: string;
-        createdByName: string | null;
-        createdByEmail: string | null;
+        updated_at: string;
+        environment_id: string;
+        parent_id: string | null;
+        created_by: string;
     };
 }>;
 export declare const PodWithAncestorsResponseSchema: z.ZodObject<{
@@ -275,8 +299,11 @@ export declare const PodWithAncestorsResponseSchema: z.ZodObject<{
         description: string | null;
         name: string;
         id: string;
-        createdAt: string;
         slug: string;
+        createdAt: string;
+        createdBy: string;
+        createdByName: string | null;
+        updatedAt: string;
         environmentId: string;
         parentId: string | null;
         ancestors: {
@@ -285,9 +312,6 @@ export declare const PodWithAncestorsResponseSchema: z.ZodObject<{
             slug: string;
             parentId: string | null;
         }[];
-        updatedAt: string;
-        createdBy: string;
-        createdByName: string | null;
         createdByEmail: string | null;
     };
 }, {
@@ -295,8 +319,11 @@ export declare const PodWithAncestorsResponseSchema: z.ZodObject<{
         description: string | null;
         name: string;
         id: string;
-        createdAt: string;
         slug: string;
+        createdAt: string;
+        createdBy: string;
+        createdByName: string | null;
+        updatedAt: string;
         environmentId: string;
         parentId: string | null;
         ancestors: {
@@ -305,9 +332,6 @@ export declare const PodWithAncestorsResponseSchema: z.ZodObject<{
             slug: string;
             parentId: string | null;
         }[];
-        updatedAt: string;
-        createdBy: string;
-        createdByName: string | null;
         createdByEmail: string | null;
     };
 }>;
@@ -319,7 +343,16 @@ export declare const PodSuccessResponseSchema: z.ZodObject<{
     success: boolean;
 }>;
 export type PodItem = z.infer<typeof PodItemSchema>;
+export type PodRow = z.infer<typeof PodRowSchema>;
 export type CreatePodBody = z.infer<typeof CreatePodBodySchema>;
 export type UpdatePodBody = z.infer<typeof UpdatePodBodySchema>;
 export type PodAncestor = z.infer<typeof PodAncestorSchema>;
+/** Query parameters read by `GET /pods`. */
+export declare const ListPodsQuerySchema: z.ZodObject<{
+    parentId: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    parentId?: string | undefined;
+}, {
+    parentId?: string | undefined;
+}>;
 //# sourceMappingURL=pods.d.ts.map

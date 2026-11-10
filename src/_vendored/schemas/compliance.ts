@@ -112,13 +112,13 @@ export declare const ReportStatusResponseSchema: z.ZodObject<{
         jobId: string;
         error?: string | undefined;
         format?: string | undefined;
+        createdAt?: string | undefined;
         framework?: string | undefined;
         dateRange?: {
             to: string;
             from: string;
         } | undefined;
         sections?: string[] | undefined;
-        createdAt?: string | undefined;
         completedAt?: string | undefined;
         downloadUrl?: string | undefined;
     };
@@ -128,13 +128,13 @@ export declare const ReportStatusResponseSchema: z.ZodObject<{
         jobId: string;
         error?: string | undefined;
         format?: string | undefined;
+        createdAt?: string | undefined;
         framework?: string | undefined;
         dateRange?: {
             to: string;
             from: string;
         } | undefined;
         sections?: string[] | undefined;
-        createdAt?: string | undefined;
         completedAt?: string | undefined;
         downloadUrl?: string | undefined;
     };

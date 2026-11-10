@@ -65,11 +65,11 @@ export declare const CreateRotationPolicyBodySchema: z.ZodObject<{
     generateCharset: z.ZodOptional<z.ZodEnum<["alphanumeric", "hex", "base64", "ascii"]>>;
     notifyOnRotation: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    generateCharset?: "base64" | "ascii" | "hex" | "alphanumeric" | undefined;
+    generateCharset?: "hex" | "base64" | "ascii" | "alphanumeric" | undefined;
     generateLength?: number | undefined;
     intervalDays: number;
     notifyOnRotation?: boolean | undefined;}, {
-    generateCharset?: "base64" | "ascii" | "hex" | "alphanumeric" | undefined;
+    generateCharset?: "hex" | "base64" | "ascii" | "alphanumeric" | undefined;
     generateLength?: number | undefined;
     intervalDays: number;
     notifyOnRotation?: boolean | undefined;}>;
@@ -79,11 +79,11 @@ export declare const UpdateRotationPolicyBodySchema: z.ZodObject<{
     generateCharset: z.ZodOptional<z.ZodEnum<["alphanumeric", "hex", "base64", "ascii"]>>;
     notifyOnRotation: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    generateCharset?: "base64" | "ascii" | "hex" | "alphanumeric" | undefined;
+    generateCharset?: "hex" | "base64" | "ascii" | "alphanumeric" | undefined;
     generateLength?: number | undefined;
     intervalDays?: number | undefined;
     notifyOnRotation?: boolean | undefined;}, {
-    generateCharset?: "base64" | "ascii" | "hex" | "alphanumeric" | undefined;
+    generateCharset?: "hex" | "base64" | "ascii" | "alphanumeric" | undefined;
     generateLength?: number | undefined;
     intervalDays?: number | undefined;
     notifyOnRotation?: boolean | undefined;}>;
@@ -156,10 +156,10 @@ export declare const RotationPolicyListResponseSchema: z.ZodObject<{
         enabled: number;
         id: string;
         createdAt: string;
-        environmentId: string;
-        updatedAt: string;
         createdBy: string;
         organisationId: string;
+        updatedAt: string;
+        environmentId: string;
         workspaceId: string;
         secretId: string;
         secretKey: string;
@@ -177,10 +177,10 @@ export declare const RotationPolicyListResponseSchema: z.ZodObject<{
         enabled: number;
         id: string;
         createdAt: string;
-        environmentId: string;
-        updatedAt: string;
         createdBy: string;
         organisationId: string;
+        updatedAt: string;
+        environmentId: string;
         workspaceId: string;
         secretId: string;
         secretKey: string;
@@ -256,10 +256,10 @@ export declare const RotationPolicyResponseSchema: z.ZodObject<{
         enabled: number;
         id: string;
         createdAt: string;
-        environmentId: string;
-        updatedAt: string;
         createdBy: string;
         organisationId: string;
+        updatedAt: string;
+        environmentId: string;
         workspaceId: string;
         secretId: string;
         secretKey: string;
@@ -277,10 +277,10 @@ export declare const RotationPolicyResponseSchema: z.ZodObject<{
         enabled: number;
         id: string;
         createdAt: string;
-        environmentId: string;
-        updatedAt: string;
         createdBy: string;
         organisationId: string;
+        updatedAt: string;
+        environmentId: string;
         workspaceId: string;
         secretId: string;
         secretKey: string;
@@ -356,10 +356,10 @@ export declare const RotationPolicyNullableResponseSchema: z.ZodObject<{
         enabled: number;
         id: string;
         createdAt: string;
-        environmentId: string;
-        updatedAt: string;
         createdBy: string;
         organisationId: string;
+        updatedAt: string;
+        environmentId: string;
         workspaceId: string;
         secretId: string;
         secretKey: string;
@@ -377,10 +377,10 @@ export declare const RotationPolicyNullableResponseSchema: z.ZodObject<{
         enabled: number;
         id: string;
         createdAt: string;
-        environmentId: string;
-        updatedAt: string;
         createdBy: string;
         organisationId: string;
+        updatedAt: string;
+        environmentId: string;
         workspaceId: string;
         secretId: string;
         secretKey: string;

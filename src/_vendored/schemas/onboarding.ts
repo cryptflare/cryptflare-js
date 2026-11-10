@@ -65,8 +65,8 @@ export declare const CompleteOnboardingResponseSchema: z.ZodObject<{
     organisation: {
         name: string;
         id: string;
-        plan: string;
         slug: string;
+        plan: string;
     };
     workspace: {
         name: string;
@@ -81,8 +81,8 @@ export declare const CompleteOnboardingResponseSchema: z.ZodObject<{
     organisation: {
         name: string;
         id: string;
-        plan: string;
         slug: string;
+        plan: string;
     };
     workspace: {
         name: string;
@@ -115,4 +115,27 @@ export type UpdateOnboardingBody = z.infer<typeof UpdateOnboardingBodySchema>;
 export type CompleteOnboardingResponse = z.infer<typeof CompleteOnboardingResponseSchema>;
 export type SlugAvailabilityResponse = z.infer<typeof SlugAvailabilityResponseSchema>;
 export type OnboardingCheckoutInput = z.infer<typeof OnboardingCheckoutInputSchema>;
+export declare const OnboardingCheckoutResponseSchema: z.ZodObject<{
+    url: z.ZodNullable<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    url: string | null;
+}, {
+    url: string | null;
+}>;
+export type OnboardingCheckoutResponse = z.infer<typeof OnboardingCheckoutResponseSchema>;
+export declare const VerifyOnboardingCheckoutResponseSchema: z.ZodObject<{
+    verified: z.ZodBoolean;
+    pending: z.ZodBoolean;
+    plan: z.ZodNullable<z.ZodString>;
+    subscriptionId: z.ZodNullable<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    pending: boolean;
+    plan: string | null;
+    subscriptionId: string | null;
+    verified: boolean;}, {
+    pending: boolean;
+    plan: string | null;
+    subscriptionId: string | null;
+    verified: boolean;}>;
+export type VerifyOnboardingCheckoutResponse = z.infer<typeof VerifyOnboardingCheckoutResponseSchema>;
 //# sourceMappingURL=onboarding.d.ts.map

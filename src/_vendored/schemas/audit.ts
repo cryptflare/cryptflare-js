@@ -175,5 +175,108 @@ export declare const AuditChainVerifyResponseSchema: z.ZodObject<{
     checked: number;
     expected?: string | undefined;
     valid: boolean;}>;
+export declare const AuditIntegrityReportResponseSchema: z.ZodObject<{
+    report: z.ZodLiteral<"audit_integrity">;
+    version: z.ZodLiteral<"1.0">;
+    organisation: z.ZodObject<{
+        id: z.ZodString;
+        name: z.ZodString;
+        slug: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        id: string;
+        name: string;
+        slug: string;}, {
+        id: string;
+        name: string;
+        slug: string;}>;
+    generatedAt: z.ZodString;
+    generatedBy: z.ZodObject<{
+        id: z.ZodString;
+        email: z.ZodString;
+        name: z.ZodNullable<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        email: string;
+        id: string;
+        name: string | null;}, {
+        email: string;
+        id: string;
+        name: string | null;}>;
+    result: z.ZodObject<{
+        valid: z.ZodBoolean;
+        checked: z.ZodNumber;
+        chainStatus: z.ZodEnum<["intact", "broken"]>;
+        brokenAt: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        brokenAt?: string | undefined;
+        chainStatus: "intact" | "broken";
+        checked: number;
+        valid: boolean;}, {
+        brokenAt?: string | undefined;
+        chainStatus: "intact" | "broken";
+        checked: number;
+        valid: boolean;}>;
+    coverage: z.ZodObject<{
+        firstEntry: z.ZodNullable<z.ZodString>;
+        lastEntry: z.ZodNullable<z.ZodString>;
+        latestHash: z.ZodNullable<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        firstEntry: string | null;
+        lastEntry: string | null;
+        latestHash: string | null;}, {
+        firstEntry: string | null;
+        lastEntry: string | null;
+        latestHash: string | null;}>;
+    reportHash: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    coverage: {
+        firstEntry: string | null;
+        lastEntry: string | null;
+        latestHash: string | null;
+    };
+    generatedAt: string;
+    generatedBy: {
+        name: string | null;
+        email: string;
+        id: string;
+    };
+    organisation: {
+        name: string;
+        id: string;
+        slug: string;
+    };
+    report: "audit_integrity";
+    reportHash: string;
+    result: {
+        valid: boolean;
+        checked: number;
+        chainStatus: "intact" | "broken";
+        brokenAt?: string | undefined;
+    };
+    version: "1.0";}, {
+    coverage: {
+        firstEntry: string | null;
+        lastEntry: string | null;
+        latestHash: string | null;
+    };
+    generatedAt: string;
+    generatedBy: {
+        name: string | null;
+        email: string;
+        id: string;
+    };
+    organisation: {
+        name: string;
+        id: string;
+        slug: string;
+    };
+    report: "audit_integrity";
+    reportHash: string;
+    result: {
+        valid: boolean;
+        checked: number;
+        chainStatus: "intact" | "broken";
+        brokenAt?: string | undefined;
+    };
+    version: "1.0";}>;
 export type AuditLogItem = z.infer<typeof AuditLogItemSchema>;
 //# sourceMappingURL=audit.d.ts.map
