@@ -2,26 +2,27 @@ import {
   APIError,
   ConflictError,
   ConnectionError,
-  CryptFlareError,
   ERRORS,
   RateLimitError,
+  RequestAbortedError,
   TimeoutError,
-} from './errors';
-import type { RetryOptions } from '../types/options';
+} from './errors'
+import type { CryptFlareError } from './errors'
+import type { RetryOptions } from '../types/options'
 
 export const DEFAULT_RETRY: Required<Omit<RetryOptions, 'shouldRetry'>> = {
   maxAttempts: 3,
   initialDelayMs: 500,
   maxDelayMs: 8_000,
   maxRetryAfterMs: 60_000,
-};
+}
 
 /**
  * Added to a server-supplied `Retry-After` before sleeping. The header is
  * whole seconds, so a window closing 27.4s from now reports 27; waking at
  * exactly 27.0s is still inside it and burns an attempt on a certain 429.
  */
-const RETRY_AFTER_GRACE_MS = 1_000;
+const RETRY_AFTER_GRACE_MS = 1_000
 
 /**
  * The retry matrix from `docs/standards/sdk/index.md`. The umbrella spec
@@ -29,7 +30,7 @@ const RETRY_AFTER_GRACE_MS = 1_000;
  * task 107 reads `packages/sdk/shared/retry-matrix.json` and verifies it
  * agrees with the constants here.
  */
-const RETRYABLE_STATUSES = new Set<number>([408, 429, 500, 502, 503, 504]);
+const RETRYABLE_STATUSES = new Set<number>([408, 429, 500, 502, 503, 504])
 
 /**
  * Decides whether an error is worth another attempt. Network-level errors
@@ -41,14 +42,16 @@ const RETRYABLE_STATUSES = new Set<number>([408, 429, 500, 502, 503, 504]);
  * auto-idempotency, so this is a safe retry).
  */
 export function defaultShouldRetry(error: CryptFlareError): boolean {
-  if (error instanceof ConnectionError || error instanceof TimeoutError) return true;
-  if (!(error instanceof APIError)) return false;
-  if (error.status === undefined) return false;
-  if (RETRYABLE_STATUSES.has(error.status)) return true;
+  // The caller asked to stop. Retrying would ignore that.
+  if (error instanceof RequestAbortedError) return false
+  if (error instanceof ConnectionError || error instanceof TimeoutError) return true
+  if (!(error instanceof APIError)) return false
+  if (error.status === undefined) return false
+  if (RETRYABLE_STATUSES.has(error.status)) return true
   if (error instanceof ConflictError && error.code === ERRORS.IDEMPOTENCY_KEY_COLLISION) {
-    return true;
+    return true
   }
-  return false;
+  return false
 }
 
 /**
@@ -70,21 +73,19 @@ export function computeBackoffMs(
 ): number {
   if (error instanceof RateLimitError && typeof error.retryAfterMs === 'number') {
     // Bounded by maxRetryAfterMs, NOT maxDelayMs. See RetryOptions.
-    return Math.min(error.retryAfterMs + RETRY_AFTER_GRACE_MS, maxRetryAfterMs);
+    return Math.min(error.retryAfterMs + RETRY_AFTER_GRACE_MS, maxRetryAfterMs)
   }
-  const exp = initialDelayMs * 2 ** attempt;
-  const cap = Math.min(maxDelayMs, exp);
-  return Math.floor(Math.random() * cap);
+  const exp = initialDelayMs * 2 ** attempt
+  const cap = Math.min(maxDelayMs, exp)
+  return Math.floor(Math.random() * cap)
 }
 
-export function resolveRetryConfig(
-  retry: RetryOptions | false | undefined,
-): {
-  maxAttempts: number;
-  initialDelayMs: number;
-  maxDelayMs: number;
-  maxRetryAfterMs: number;
-  shouldRetry: (e: CryptFlareError, attempt: number) => boolean;
+export function resolveRetryConfig(retry: RetryOptions | false | undefined): {
+  maxAttempts: number
+  initialDelayMs: number
+  maxDelayMs: number
+  maxRetryAfterMs: number
+  shouldRetry: (e: CryptFlareError, attempt: number) => boolean
 } {
   if (retry === false) {
     return {
@@ -93,11 +94,11 @@ export function resolveRetryConfig(
       maxDelayMs: DEFAULT_RETRY.maxDelayMs,
       maxRetryAfterMs: DEFAULT_RETRY.maxRetryAfterMs,
       shouldRetry: () => false,
-    };
+    }
   }
 
-  const maxRetryAfterMs = retry?.maxRetryAfterMs ?? DEFAULT_RETRY.maxRetryAfterMs;
-  const base = retry?.shouldRetry ?? defaultShouldRetry;
+  const maxRetryAfterMs = retry?.maxRetryAfterMs ?? DEFAULT_RETRY.maxRetryAfterMs
+  const base = retry?.shouldRetry ?? defaultShouldRetry
 
   return {
     maxAttempts: retry?.maxAttempts ?? DEFAULT_RETRY.maxAttempts,
@@ -110,36 +111,36 @@ export function resolveRetryConfig(
     // still consulted for everything under the ceiling.
     shouldRetry: (error, attempt) => {
       if (
-        error instanceof RateLimitError
-        && typeof error.retryAfterMs === 'number'
-        && error.retryAfterMs > maxRetryAfterMs
+        error instanceof RateLimitError &&
+        typeof error.retryAfterMs === 'number' &&
+        error.retryAfterMs > maxRetryAfterMs
       ) {
-        return false;
+        return false
       }
-      return base(error, attempt);
+      return base(error, attempt)
     },
-  };
+  }
 }
 
 export function sleep(ms: number, signal?: AbortSignal): Promise<void> {
-  if (ms <= 0) return Promise.resolve();
+  if (ms <= 0) return Promise.resolve()
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
-      cleanup();
-      resolve();
-    }, ms);
+      cleanup()
+      resolve()
+    }, ms)
 
     const onAbort = () => {
-      cleanup();
-      reject(new ConnectionError('Aborted while waiting to retry.'));
-    };
-
-    function cleanup() {
-      clearTimeout(timer);
-      signal?.removeEventListener('abort', onAbort);
+      cleanup()
+      reject(new RequestAbortedError('Aborted while waiting to retry.', signal?.reason))
     }
 
-    if (signal?.aborted) onAbort();
-    else signal?.addEventListener('abort', onAbort);
-  });
+    function cleanup() {
+      clearTimeout(timer)
+      signal?.removeEventListener('abort', onAbort)
+    }
+
+    if (signal?.aborted) onAbort()
+    else signal?.addEventListener('abort', onAbort)
+  })
 }

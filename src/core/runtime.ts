@@ -1,6 +1,7 @@
-import { VERSION } from '../version';
+import { VERSION } from '../version'
+import { readPath, readString } from './guards'
 
-export type Runtime = 'node' | 'bun' | 'deno' | 'workers' | 'browser' | 'unknown';
+export type Runtime = 'node' | 'bun' | 'deno' | 'workers' | 'browser' | 'unknown'
 
 /**
  * Detects the JavaScript runtime the SDK is executing in. Used by the
@@ -9,32 +10,32 @@ export type Runtime = 'node' | 'bun' | 'deno' | 'workers' | 'browser' | 'unknown
  * `bun`, not `node`, even though `process` is defined in both.
  */
 export function detectRuntime(): Runtime {
-  const g = globalThis as Record<string, unknown>;
+  const g: unknown = globalThis
 
-  if (typeof g['Bun'] !== 'undefined') return 'bun';
-  if (typeof g['Deno'] !== 'undefined') return 'deno';
+  if (readPath(g, 'Bun') !== undefined) return 'bun'
+  if (readPath(g, 'Deno') !== undefined) return 'deno'
 
   // Cloudflare Workers and similar edge runtimes expose a navigator.userAgent
   // string starting with "Cloudflare-Workers" but no `process` object.
-  const nav = g['navigator'] as { userAgent?: string } | undefined;
+  const userAgent = readString(g, 'navigator', 'userAgent')
   if (
-    typeof nav?.userAgent === 'string'
-    && /Cloudflare-Workers|Vercel-Edge|Netlify Edge|workerd/i.test(nav.userAgent)
+    userAgent !== undefined &&
+    /Cloudflare-Workers|Vercel-Edge|Netlify Edge|workerd/i.test(userAgent)
   ) {
-    return 'workers';
+    return 'workers'
   }
 
   // Heuristic for browsers: window + document. Workers has neither; Node
   // has neither. Excluding the workers branch above, this is reliable.
-  if (typeof g['window'] !== 'undefined' && typeof g['document'] !== 'undefined') {
-    return 'browser';
+  if (readPath(g, 'window') !== undefined && readPath(g, 'document') !== undefined) {
+    return 'browser'
   }
 
-  if (typeof g['process'] !== 'undefined' && typeof (g['process'] as { versions?: { node?: string } }).versions?.node === 'string') {
-    return 'node';
+  if (readString(g, 'process', 'versions', 'node') !== undefined) {
+    return 'node'
   }
 
-  return 'unknown';
+  return 'unknown'
 }
 
 /**
@@ -45,7 +46,7 @@ export function detectRuntime(): Runtime {
  * traffic to the right surface.
  */
 export function getUserAgent(suffix?: string): string {
-  const runtime = detectRuntime();
-  const base = `cryptflare-sdk-ts/${VERSION} (${runtime})`;
-  return suffix ? `${base} ${suffix}` : base;
+  const runtime = detectRuntime()
+  const base = `cryptflare-sdk-ts/${VERSION} (${runtime})`
+  return suffix ? `${base} ${suffix}` : base
 }

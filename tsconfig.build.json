@@ -4,7 +4,10 @@
     "composite": false,
     "declaration": true,
     "declarationMap": false,
-    "noEmit": false
+    "stripInternal": true,
+    "noEmit": false,
+    // tsup's DTS step injects `baseUrl`, which TS 6 flags as deprecated.
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["dist", "tests", "scripts"]

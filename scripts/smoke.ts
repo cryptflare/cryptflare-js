@@ -19,18 +19,24 @@
  * Exits non-zero on the first failure. Each step prints a one-line status
  * with elapsed ms so a manual run reads like a checklist.
  */
-import { APIError, CryptFlare, CryptFlareError } from '../src';
+import { APIError, CryptFlare, CryptFlareError } from '@/index'
+import { format } from 'node:util'
 
-const apiKey = process.env['CRYPTFLARE_API_KEY'];
-const baseUrl = process.env['CRYPTFLARE_API_URL'] ?? 'http://localhost:5488';
-const organisation = process.env['CRYPTFLARE_ORG'];
-const workspace = process.env['CRYPTFLARE_WORKSPACE'];
-const environment = process.env['CRYPTFLARE_ENV'];
-const verbose = process.env['CRYPTFLARE_VERBOSE'] === '1';
+/** Progress line on stdout. */
+const log = (...parts: unknown[]): void => {
+  process.stdout.write(`${format(...parts)}\n`)
+}
+
+const apiKey = process.env['CRYPTFLARE_API_KEY']
+const baseUrl = process.env['CRYPTFLARE_API_URL'] ?? 'http://localhost:5488'
+const organisation = process.env['CRYPTFLARE_ORG']
+const workspace = process.env['CRYPTFLARE_WORKSPACE']
+const environment = process.env['CRYPTFLARE_ENV']
+const verbose = process.env['CRYPTFLARE_VERBOSE'] === '1'
 
 if (!apiKey) {
-  console.error('CRYPTFLARE_API_KEY is required.');
-  process.exit(1);
+  console.error('CRYPTFLARE_API_KEY is required.')
+  process.exit(1)
 }
 
 const client = new CryptFlare({
@@ -42,15 +48,15 @@ const client = new CryptFlare({
   userAgentSuffix: 'smoke',
   hooks: {
     onRequest: ({ method, path, requestId }) => {
-      if (verbose) console.log(`  → ${method} ${path} [${requestId}]`);
+      if (verbose) log(`  → ${method} ${path} [${requestId}]`)
     },
     onResponse: ({ status, durationMs }) => {
-      if (verbose) console.log(`  ← ${status} (${durationMs}ms)`);
+      if (verbose) log(`  ← ${status} (${durationMs}ms)`)
     },
   },
-});
+})
 
-type Step = { name: string; run: () => Promise<unknown> };
+type Step = { name: string; run: () => Promise<unknown> }
 
 const steps: Step[] = [
   {
@@ -65,7 +71,7 @@ const steps: Step[] = [
     name: 'organisations.list() - list orgs caller belongs to',
     run: () => client.organisations.list(),
   },
-];
+]
 
 if (organisation) {
   steps.push(
@@ -81,7 +87,7 @@ if (organisation) {
       name: 'tokens.list() - list PATs in default org',
       run: () => client.tokens.list(),
     },
-  );
+  )
 }
 
 if (organisation && workspace && environment) {
@@ -97,62 +103,70 @@ if (organisation && workspace && environment) {
     {
       name: 'secrets.list() - list secrets (CursorPage iter)',
       run: async () => {
-        const page = await client.secrets.list();
-        const collected: string[] = [];
-        let count = 0;
+        const page = await client.secrets.list()
+        const collected: string[] = []
+        let count = 0
         for await (const secret of page) {
-          collected.push(secret.key);
-          count += 1;
-          if (count >= 3) break;
+          collected.push(secret.key)
+          count += 1
+          if (count >= 3) break
         }
-        return { sample: collected, hasMore: page.hasNextPage };
+        return { sample: collected, hasMore: page.hasNextPage }
       },
     },
-  );
+  )
 }
 
 steps.push({
   name: 'error mapping - GET on non-existent path returns NotFoundError',
   run: async () => {
     try {
-      await client.runner.send({ method: 'GET', path: '/v1/this-path-does-not-exist' });
-      throw new Error('Expected 404 but got success.');
+      await client.request({ method: 'GET', path: '/v1/this-path-does-not-exist' })
+      throw new Error('Expected 404 but got success.')
     } catch (err) {
       if (err instanceof APIError && err.status === 404) {
-        return { code: err.code, requestId: err.requestId };
+        return { code: err.code, requestId: err.requestId }
       }
-      throw err;
+      throw err
     }
   },
-});
+})
 
 async function main(): Promise<number> {
-  let failed = 0;
+  let failed = 0
   for (const step of steps) {
-    const t0 = Date.now();
+    const t0 = Date.now()
     try {
-      const result = await step.run();
-      const ms = Date.now() - t0;
-      console.log(`✓ ${step.name} (${ms}ms)`);
-      if (verbose) console.log('  ', JSON.stringify(result, null, 2).slice(0, 500));
+      const result = await step.run()
+      const ms = Date.now() - t0
+      log(`PASS ${step.name} (${ms}ms)`)
+      if (verbose) log('  ', JSON.stringify(result, null, 2).slice(0, 500))
     } catch (err) {
-      const ms = Date.now() - t0;
-      failed += 1;
+      const ms = Date.now() - t0
+      failed += 1
       if (err instanceof CryptFlareError) {
-        console.error(`✗ ${step.name} (${ms}ms) - ${err.name}: ${err.message}`);
+        console.error(`FAIL ${step.name} (${ms}ms) - ${err.name}: ${err.message}`)
         if (err instanceof APIError) {
-          console.error(`    code=${err.code} status=${err.status} requestId=${err.requestId}`);
+          console.error(`    code=${err.code} status=${err.status} requestId=${err.requestId}`)
         }
       } else {
-        console.error(`✗ ${step.name} (${ms}ms) - ${(err as Error).message}`);
+        console.error(
+          `FAIL ${step.name} (${ms}ms) - ${err instanceof Error ? err.message : String(err)}`,
+        )
       }
     }
   }
-  console.log(failed === 0 ? `\nAll ${steps.length} steps passed.` : `\n${failed}/${steps.length} step(s) failed.`);
-  return failed === 0 ? 0 : 1;
+  log(
+    failed === 0
+      ? `\nAll ${steps.length} steps passed.`
+      : `\n${failed}/${steps.length} step(s) failed.`,
+  )
+  return failed === 0 ? 0 : 1
 }
 
-main().then((code) => process.exit(code)).catch((err) => {
-  console.error('Unexpected smoke failure:', err);
-  process.exit(1);
-});
+main()
+  .then((code) => process.exit(code))
+  .catch((err) => {
+    console.error('Unexpected smoke failure:', err)
+    process.exit(1)
+  })

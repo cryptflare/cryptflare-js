@@ -13,42 +13,48 @@
  * land the tool without flipping the source-of-truth. Once stable, the
  * release workflow's drift gate will run this and diff `_generated`.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { spawnSync } from 'node:child_process'
+import { format } from 'node:util'
 
-const here = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(here, '..');
-const OUT_DIR = resolve(ROOT, 'src', '_generated');
-const OUT_FILE = resolve(OUT_DIR, 'openapi.d.ts');
+/** Progress line on stdout. */
+const log = (...parts: unknown[]): void => {
+  process.stdout.write(`${format(...parts)}\n`)
+}
 
-const args = parseArgs(process.argv.slice(2));
+const here = dirname(fileURLToPath(import.meta.url))
+const ROOT = resolve(here, '..')
+const OUT_DIR = resolve(ROOT, 'src', '_generated')
+const OUT_FILE = resolve(OUT_DIR, 'openapi.d.ts')
+
+const args = parseArgs(process.argv.slice(2))
 
 async function main() {
-  const spec = await loadSpec();
-  if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
+  const spec = await loadSpec()
+  if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true })
 
   // Write the spec to a temp file so openapi-typescript reads it without
   // re-fetching. Stays inside the package so any contributor cloning the
   // repo can reproduce the codegen.
-  const tmp = resolve(OUT_DIR, 'openapi.json');
-  writeFileSync(tmp, JSON.stringify(spec, null, 2));
+  const tmp = resolve(OUT_DIR, 'openapi.json')
+  writeFileSync(tmp, JSON.stringify(spec, null, 2))
 
-  console.log(`[codegen] generating ${OUT_FILE}`);
+  log(`[codegen] generating ${OUT_FILE}`)
   const result = spawnSync(
     'npx',
     ['-y', 'openapi-typescript@latest', tmp, '-o', OUT_FILE, '--root-types'],
     { stdio: 'inherit' },
-  );
+  )
   if (result.status !== 0) {
-    console.error('[codegen] openapi-typescript exited non-zero');
-    process.exit(result.status ?? 1);
+    console.error('[codegen] openapi-typescript exited non-zero')
+    process.exit(result.status ?? 1)
   }
 
   // Provide a friendlier index that re-exports the generated schemas under
   // names the SDK can import without leaking the openapi-typescript shape.
-  const indexPath = resolve(OUT_DIR, 'index.ts');
+  const indexPath = resolve(OUT_DIR, 'index.ts')
   writeFileSync(
     indexPath,
     [
@@ -59,37 +65,38 @@ async function main() {
       "export type { components, paths, operations } from './openapi';",
       '',
     ].join('\n'),
-  );
+  )
 
-  console.log(`[codegen] done. ${OUT_FILE}`);
+  log(`[codegen] done. ${OUT_FILE}`)
 }
 
 async function loadSpec(): Promise<unknown> {
   if (args.file) {
-    const path = resolve(process.cwd(), args.file);
-    return JSON.parse(readFileSync(path, 'utf8'));
+    const path = resolve(process.cwd(), args.file)
+    return JSON.parse(readFileSync(path, 'utf8'))
   }
-  const url = args.url
-    ?? process.env.CRYPTFLARE_OPENAPI_URL
-    ?? `${process.env.CRYPTFLARE_API_URL ?? 'https://api.cryptflare.com'}/v1/openapi.json`;
-  console.log(`[codegen] fetching ${url}`);
-  const res = await fetch(url);
+  const url =
+    args.url ??
+    process.env.CRYPTFLARE_OPENAPI_URL ??
+    `${process.env.CRYPTFLARE_API_URL ?? 'https://api.cryptflare.com'}/v1/openapi.json`
+  log(`[codegen] fetching ${url}`)
+  const res = await fetch(url)
   if (!res.ok) {
-    throw new Error(`Could not fetch OpenAPI spec from ${url}: HTTP ${res.status}`);
+    throw new Error(`Could not fetch OpenAPI spec from ${url}: HTTP ${res.status}`)
   }
-  return await res.json();
+  return await res.json()
 }
 
 function parseArgs(argv: string[]): { url?: string; file?: string } {
-  const out: { url?: string; file?: string } = {};
+  const out: { url?: string; file?: string } = {}
   for (const arg of argv) {
-    if (arg.startsWith('--url=')) out.url = arg.slice(6);
-    else if (arg.startsWith('--file=')) out.file = arg.slice(7);
+    if (arg.startsWith('--url=')) out.url = arg.slice(6)
+    else if (arg.startsWith('--file=')) out.file = arg.slice(7)
   }
-  return out;
+  return out
 }
 
 main().catch((err) => {
-  console.error('[codegen]', err);
-  process.exit(1);
-});
+  console.error('[codegen]', err)
+  process.exit(1)
+})

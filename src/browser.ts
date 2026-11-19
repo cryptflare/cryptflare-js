@@ -16,8 +16,8 @@
  * condition.
  */
 
-export { CryptFlare } from './client';
-export { VERSION as version } from './version';
+export { CryptFlare } from './client'
+export { VERSION as version } from './version'
 
 export {
   APIError,
@@ -28,33 +28,32 @@ export {
   ConnectionError,
   CryptFlareError,
   ERRORS,
+  EnvelopeError,
   InternalServerError,
   NotFoundError,
   PermissionDeniedError,
   RateLimitError,
+  RequestAbortedError,
   TimeoutError,
   UnknownAPIError,
   UnprocessableEntityError,
-} from './core/errors';
-export type { ErrorCode, ErrorDetail } from './core/errors';
+} from './core/errors'
+export type { ErrorCode, ErrorDetail } from './core/errors'
+export type { RequestDescriptor } from './core/request'
 
-export { CursorPage } from './core/pagination';
-export type { PageEnvelope } from './core/pagination';
-export { PagePromise } from './core/page-promise';
+export { CursorPage } from './core/pagination'
+export type { PageEnvelope } from './core/pagination'
+export { PagePromise } from './core/page-promise'
 
-export { verifyWebhook, WebhookVerificationError } from './core/webhooks';
-export type { VerifyOptions as VerifyWebhookOptions } from './core/webhooks';
-export { WEBHOOK_EVENT_TYPES, isKnownEventType } from './types/webhooks';
-export type { WebhookEvent, WebhookEventPayloads, WebhookEventType } from './types/webhooks';
+export { verifyWebhook, WebhookVerificationError } from './core/webhooks'
+export type { VerifyOptions as VerifyWebhookOptions } from './core/webhooks'
+export { WEBHOOK_EVENT_TYPES, isKnownEventType } from './types/webhooks'
+export type { WebhookEvent, WebhookEventPayloads, WebhookEventType } from './types/webhooks'
 
-export { LocalKeyring, isEnvelope, seal, unseal } from './core/crypto';
-export type { Envelope, Keyring } from './core/crypto';
+export { LocalKeyring, isEnvelope, seal, unseal } from './core/crypto'
+export type { Envelope, Keyring } from './core/crypto'
 
-export type {
-  ClientOptions,
-  HttpMethod,
-  RequestOptions,
-} from './types/options';
+export type { ClientOptions, HttpMethod, RequestOptions } from './types/options'
 
 export type {
   EnvironmentItem,
@@ -64,4 +63,4 @@ export type {
   SecretRevealResponse,
   WhoAmI,
   WorkspaceItem,
-} from './types';
+} from './types'

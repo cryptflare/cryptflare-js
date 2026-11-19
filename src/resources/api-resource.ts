@@ -1,8 +1,9 @@
-import type { CursorPage, PageEnvelope } from '../core/pagination';
-import { CursorPage as CursorPageImpl } from '../core/pagination';
-import { PagePromise } from '../core/page-promise';
-import type { RequestRunner, RequestDescriptor } from '../core/request';
-import type { RequestOptions } from '../types/options';
+import { ConfigurationError } from '../core/errors'
+import type { PageEnvelope } from '../core/pagination'
+import { CursorPage as CursorPageImpl } from '../core/pagination'
+import { PagePromise } from '../core/page-promise'
+import type { RequestRunner, RequestDescriptor } from '../core/request'
+import type { RequestOptions } from '../types/options'
 
 /**
  * Base class every resource extends. Resources own one job: build a
@@ -11,22 +12,22 @@ import type { RequestOptions } from '../types/options';
  * cross-cutting belongs in `core/`.
  */
 export type ResourceDefaults = {
-  organisation?: string;
-  workspace?: string;
-  environment?: string;
-};
+  organisation?: string
+  workspace?: string
+  environment?: string
+}
 
 export abstract class APIResource {
-  protected readonly runner: RequestRunner;
-  protected readonly defaults: ResourceDefaults;
+  protected readonly runner: RequestRunner
+  protected readonly defaults: ResourceDefaults
 
   constructor(runner: RequestRunner, defaults: ResourceDefaults) {
-    this.runner = runner;
-    this.defaults = defaults;
+    this.runner = runner
+    this.defaults = defaults
   }
 
   protected request<T>(descriptor: RequestDescriptor, options?: RequestOptions): Promise<T> {
-    return this.runner.send<T>(descriptor, options);
+    return this.runner.send<T>(descriptor, options)
   }
 
   /**
@@ -35,13 +36,19 @@ export abstract class APIResource {
    * envelope their payload this way; using `request<T>()` directly would
    * leak the wrapper to callers.
    */
-  protected async requestData<T>(descriptor: RequestDescriptor, options?: RequestOptions): Promise<T> {
-    const response = await this.runner.send<{ data: T }>(descriptor, options);
-    return response.data;
+  protected async requestData<T>(
+    descriptor: RequestDescriptor,
+    options?: RequestOptions,
+  ): Promise<T> {
+    const response = await this.runner.send<{ data: T }>(descriptor, options)
+    return response.data
   }
 
-  protected requestStream(descriptor: RequestDescriptor, options?: RequestOptions): Promise<ReadableStream<Uint8Array>> {
-    return this.runner.stream(descriptor, options);
+  protected requestStream(
+    descriptor: RequestDescriptor,
+    options?: RequestOptions,
+  ): Promise<ReadableStream<Uint8Array>> {
+    return this.runner.stream(descriptor, options)
   }
 
   /**
@@ -54,54 +61,60 @@ export abstract class APIResource {
     options?: RequestOptions,
   ): PagePromise<T> {
     const fetcher = async (cursor: string | undefined, opts: RequestOptions | undefined) => {
-      const descriptor = build(cursor);
-      return await this.runner.send<PageEnvelope<T>>(descriptor, opts);
-    };
-    return new PagePromise<T>(async (resolve, reject) => {
-      try {
-        const initial = await fetcher(undefined, options);
-        resolve(new CursorPageImpl<T>(initial, fetcher, options));
-      } catch (err) {
-        reject(err);
-      }
-    });
+      const descriptor = build(cursor)
+      return await this.runner.send<PageEnvelope<T>>(descriptor, opts)
+    }
+    return new PagePromise<T>((resolve, reject) => {
+      fetcher(undefined, options).then(
+        (initial) => resolve(new CursorPageImpl<T>(initial, fetcher, options)),
+        reject,
+      )
+    })
   }
 
-  protected resolveScope(input: { organisation?: string; workspace?: string; environment?: string }): {
-    organisation: string;
-    workspace: string;
-    environment: string;
+  protected resolveScope(input: {
+    organisation?: string
+    workspace?: string
+    environment?: string
+  }): {
+    organisation: string
+    workspace: string
+    environment: string
   } {
-    const organisation = input.organisation ?? this.defaults.organisation;
-    const workspace = input.workspace ?? this.defaults.workspace;
-    const environment = input.environment ?? this.defaults.environment;
+    const organisation = input.organisation ?? this.defaults.organisation
+    const workspace = input.workspace ?? this.defaults.workspace
+    const environment = input.environment ?? this.defaults.environment
     if (!organisation || !workspace || !environment) {
-      throw new Error(
+      throw new ConfigurationError(
         'organisation, workspace, and environment slugs are required - pass them per call or set defaults on the client.',
-      );
+      )
     }
-    return { organisation, workspace, environment };
+    return { organisation, workspace, environment }
   }
 
   protected resolveOrg(input: { organisation?: string }): string {
-    const organisation = input.organisation ?? this.defaults.organisation;
+    const organisation = input.organisation ?? this.defaults.organisation
     if (!organisation) {
-      throw new Error('An organisation slug is required - pass it per call or set a default on the client.');
+      throw new ConfigurationError(
+        'An organisation slug is required - pass it per call or set a default on the client.',
+      )
     }
-    return organisation;
+    return organisation
   }
 
   protected resolveWorkspace(input: { organisation?: string; workspace?: string }): {
-    organisation: string;
-    workspace: string;
+    organisation: string
+    workspace: string
   } {
-    const organisation = this.resolveOrg(input);
-    const workspace = input.workspace ?? this.defaults.workspace;
+    const organisation = this.resolveOrg(input)
+    const workspace = input.workspace ?? this.defaults.workspace
     if (!workspace) {
-      throw new Error('A workspace slug is required - pass it per call or set a default on the client.');
+      throw new ConfigurationError(
+        'A workspace slug is required - pass it per call or set a default on the client.',
+      )
     }
-    return { organisation, workspace };
+    return { organisation, workspace }
   }
 }
 
-export const enc = encodeURIComponent;
+export const enc = encodeURIComponent

@@ -1,8 +1,41 @@
-import { APIResource, enc } from './api-resource';
-import type { RequestOptions } from '../types/options';
+import { APIResource, enc } from './api-resource'
+import type { RequestOptions } from '../types/options'
+import type {
+  AwsFederationMetadataResponse,
+  AwsSecretListResponse,
+  AzureConsentUrlResponse,
+  AzureVaultListResponse,
+  CloudflareWorkerListResponse,
+  GcpFederationMetadataResponse,
+  GcpSecretListResponse,
+  GitHubCallbackResponse,
+  GitHubInstallUrlResponse,
+  GitHubRepositoryListResponse,
+  IntegrationListResponse,
+  IntegrationProbeResponse,
+  K8sNamespaceListResponse,
+  NetlifySiteListResponse,
+  RailwayProjectListResponse,
+  RegisterAwsInput,
+  RegisterAwsResponse,
+  RegisterCloudflareInput,
+  RegisterCloudflareResponse,
+  RegisterGcpInput,
+  RegisterGcpResponse,
+  RegisterK8sClusterInput,
+  RegisterK8sClusterResponse,
+  RegisterNetlifyInput,
+  RegisterNetlifyResponse,
+  RegisterRailwayInput,
+  RegisterRailwayResponse,
+  RegisterVercelInput,
+  RegisterVercelResponse,
+  VercelProjectListResponse,
+} from '../types'
 
-type OrgInput = { organisation?: string };
-const base = (org: string) => `/v1/organisations/${enc(org)}/integrations`;
+type OrgInput = { organisation?: string }
+type IntegrationInput = OrgInput & { integrationId: string }
+const base = (org: string) => `/v1/organisations/${enc(org)}/integrations`
 
 /**
  * Cloud + CI provider integrations. One resource per integration kept thin
@@ -11,135 +44,268 @@ const base = (org: string) => `/v1/organisations/${enc(org)}/integrations`;
  * provider-specific structure.
  */
 export class Integrations extends APIResource {
-  list(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.request({ method: 'GET', path: base(this.resolveOrg(input)) }, options);
+  /** `GET /v1/organisations/:org/integrations`. Requires `integrations:read`. */
+  list(input: OrgInput = {}, options?: RequestOptions): Promise<IntegrationListResponse> {
+    return this.request<IntegrationListResponse>(
+      { method: 'GET', path: base(this.resolveOrg(input)) },
+      options,
+    )
   }
 
   /**
    * POST /integrations/:id/probe - tests an existing integration's credentials.
    *
    * Previously posted to `/integrations/probe`, which does not exist; probing
-   * is scoped to a specific integration, so `integrationId` is now required.
+   * is scoped to a specific integration, so `integrationId` is now required. Requires `integrations:manage`.
    */
   probe(
     input: OrgInput & { integrationId: string; provider: string; config: Record<string, unknown> },
     options?: RequestOptions,
-  ): Promise<unknown> {
-    const org = this.resolveOrg(input);
-    return this.request({
-      method: 'POST',
-      path: `${base(org)}/${enc(input.integrationId)}/probe`,
-      body: { provider: input.provider, config: input.config },
-    }, options);
+  ): Promise<IntegrationProbeResponse> {
+    const org = this.resolveOrg(input)
+    return this.request<IntegrationProbeResponse>(
+      {
+        method: 'POST',
+        path: `${base(org)}/${enc(input.integrationId)}/probe`,
+        body: { provider: input.provider, config: input.config },
+      },
+      options,
+    )
   }
 
+  /** `DELETE /v1/organisations/:org/integrations/:integrationId`. Requires `integrations:manage`. */
   delete(input: OrgInput & { integrationId: string }, options?: RequestOptions): Promise<void> {
-    const org = this.resolveOrg(input);
-    return this.request<void>({ method: 'DELETE', path: `${base(org)}/${enc(input.integrationId)}` }, options);
+    const org = this.resolveOrg(input)
+    return this.request<void>(
+      { method: 'DELETE', path: `${base(org)}/${enc(input.integrationId)}` },
+      options,
+    )
   }
 
   // -- AWS ------------------------------------------------------------------
-  registerAws(input: OrgInput & Record<string, unknown>, options?: RequestOptions): Promise<unknown> {
-    return this.providerPost('aws/register', input, options);
+  /** `POST /v1/organisations/:org/integrations/aws/register`. Requires `integrations:manage`. */
+  registerAws(
+    input: OrgInput & RegisterAwsInput,
+    options?: RequestOptions,
+  ): Promise<RegisterAwsResponse> {
+    return this.providerPost<RegisterAwsResponse>('aws/register', input, options)
   }
-  awsFederation(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.providerGet('aws/federation', input, options);
+  /** `GET /v1/organisations/:org/integrations/:integrationId/aws-federation`. Requires `integrations:read`. */
+  awsFederation(
+    input: IntegrationInput,
+    options?: RequestOptions,
+  ): Promise<AwsFederationMetadataResponse> {
+    return this.integrationGet<AwsFederationMetadataResponse>('aws-federation', input, options)
   }
-  listAwsSecrets(input: OrgInput & { region?: string } = {}, options?: RequestOptions): Promise<unknown> {
-    return this.providerGet('aws/secrets', input, options, input.region !== undefined ? { region: input.region } : undefined);
+  /**
+   * `GET /v1/organisations/:org/integrations/:integrationId/aws-secrets`. The
+   * region comes from the integration, so there is no region parameter.
+   * Requires `integrations:read`.
+   */
+  listAwsSecrets(
+    input: IntegrationInput,
+    options?: RequestOptions,
+  ): Promise<AwsSecretListResponse> {
+    return this.integrationGet<AwsSecretListResponse>('aws-secrets', input, options)
   }
 
   // -- Azure ----------------------------------------------------------------
-  registerAzure(input: OrgInput & Record<string, unknown>, options?: RequestOptions): Promise<unknown> {
-    return this.providerPost('azure/register', input, options);
+  /**
+   * `POST /v1/organisations/:org/integrations/azure/consent-url`. Azure has
+   * no register call: open the returned admin-consent URL and the API
+   * records the tenant when Azure redirects back. Requires `integrations:manage`.
+   */
+  registerAzure(input: OrgInput = {}, options?: RequestOptions): Promise<AzureConsentUrlResponse> {
+    const org = this.resolveOrg(input)
+    return this.request<AzureConsentUrlResponse>(
+      { method: 'POST', path: `${base(org)}/azure/consent-url` },
+      options,
+    )
   }
-  listAzureVaults(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.providerGet('azure/vaults', input, options);
+  /** `GET /v1/organisations/:org/integrations/:integrationId/vaults`. Requires `integrations:read`. */
+  listAzureVaults(
+    input: IntegrationInput,
+    options?: RequestOptions,
+  ): Promise<AzureVaultListResponse> {
+    return this.integrationGet<AzureVaultListResponse>('vaults', input, options)
   }
 
   // -- GCP ------------------------------------------------------------------
-  registerGcp(input: OrgInput & Record<string, unknown>, options?: RequestOptions): Promise<unknown> {
-    return this.providerPost('gcp/register', input, options);
+  /** `POST /v1/organisations/:org/integrations/gcp/register`. Requires `integrations:manage`. */
+  registerGcp(
+    input: OrgInput & RegisterGcpInput,
+    options?: RequestOptions,
+  ): Promise<RegisterGcpResponse> {
+    return this.providerPost<RegisterGcpResponse>('gcp/register', input, options)
   }
-  gcpFederation(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.providerGet('gcp/federation', input, options);
+  /** `GET /v1/organisations/:org/integrations/:integrationId/gcp-federation`. Requires `integrations:read`. */
+  gcpFederation(
+    input: IntegrationInput,
+    options?: RequestOptions,
+  ): Promise<GcpFederationMetadataResponse> {
+    return this.integrationGet<GcpFederationMetadataResponse>('gcp-federation', input, options)
   }
-  listGcpSecrets(input: OrgInput & { project?: string } = {}, options?: RequestOptions): Promise<unknown> {
-    return this.providerGet('gcp/secrets', input, options, input.project !== undefined ? { project: input.project } : undefined);
+  /**
+   * `GET /v1/organisations/:org/integrations/:integrationId/gcp-secrets`. The
+   * project comes from the integration, so there is no project parameter.
+   * Requires `integrations:read`.
+   */
+  listGcpSecrets(
+    input: IntegrationInput,
+    options?: RequestOptions,
+  ): Promise<GcpSecretListResponse> {
+    return this.integrationGet<GcpSecretListResponse>('gcp-secrets', input, options)
   }
 
   // -- Cloudflare -----------------------------------------------------------
-  registerCloudflare(input: OrgInput & Record<string, unknown>, options?: RequestOptions): Promise<unknown> {
-    return this.providerPost('cloudflare/register', input, options);
+  /** `POST /v1/organisations/:org/integrations/cloudflare/register`. Requires `integrations:manage`. */
+  registerCloudflare(
+    input: OrgInput & RegisterCloudflareInput,
+    options?: RequestOptions,
+  ): Promise<RegisterCloudflareResponse> {
+    return this.providerPost<RegisterCloudflareResponse>('cloudflare/register', input, options)
   }
-  listCloudflareWorkers(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.providerGet('cloudflare/workers', input, options);
+  /** `GET /v1/organisations/:org/integrations/:integrationId/workers`. Requires `integrations:read`. */
+  listCloudflareWorkers(
+    input: IntegrationInput,
+    options?: RequestOptions,
+  ): Promise<CloudflareWorkerListResponse> {
+    return this.integrationGet<CloudflareWorkerListResponse>('workers', input, options)
   }
 
   // -- Kubernetes -----------------------------------------------------------
-  registerK8s(input: OrgInput & Record<string, unknown>, options?: RequestOptions): Promise<unknown> {
-    return this.providerPost('k8s/register', input, options);
+  /** `POST /v1/organisations/:org/integrations/k8s/register`. Requires `integrations:manage`. */
+  registerK8s(
+    input: OrgInput & RegisterK8sClusterInput,
+    options?: RequestOptions,
+  ): Promise<RegisterK8sClusterResponse> {
+    return this.providerPost<RegisterK8sClusterResponse>('k8s/register', input, options)
   }
-  listK8sNamespaces(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.providerGet('k8s/namespaces', input, options);
+  /** `GET /v1/organisations/:org/integrations/:integrationId/namespaces`. Requires `integrations:read`. */
+  listK8sNamespaces(
+    input: IntegrationInput,
+    options?: RequestOptions,
+  ): Promise<K8sNamespaceListResponse> {
+    return this.integrationGet<K8sNamespaceListResponse>('namespaces', input, options)
   }
 
   // -- Netlify --------------------------------------------------------------
-  registerNetlify(input: OrgInput & Record<string, unknown>, options?: RequestOptions): Promise<unknown> {
-    return this.providerPost('netlify/register', input, options);
+  /** `POST /v1/organisations/:org/integrations/netlify/register`. Requires `integrations:manage`. */
+  registerNetlify(
+    input: OrgInput & RegisterNetlifyInput,
+    options?: RequestOptions,
+  ): Promise<RegisterNetlifyResponse> {
+    return this.providerPost<RegisterNetlifyResponse>('netlify/register', input, options)
   }
-  listNetlifySites(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.providerGet('netlify/sites', input, options);
+  /** `GET /v1/organisations/:org/integrations/:integrationId/sites`. Requires `integrations:read`. */
+  listNetlifySites(
+    input: IntegrationInput,
+    options?: RequestOptions,
+  ): Promise<NetlifySiteListResponse> {
+    return this.integrationGet<NetlifySiteListResponse>('sites', input, options)
   }
 
   // -- Railway --------------------------------------------------------------
-  registerRailway(input: OrgInput & Record<string, unknown>, options?: RequestOptions): Promise<unknown> {
-    return this.providerPost('railway/register', input, options);
+  /** `POST /v1/organisations/:org/integrations/railway/register`. Requires `integrations:manage`. */
+  registerRailway(
+    input: OrgInput & RegisterRailwayInput,
+    options?: RequestOptions,
+  ): Promise<RegisterRailwayResponse> {
+    return this.providerPost<RegisterRailwayResponse>('railway/register', input, options)
   }
-  listRailwayProjects(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.providerGet('railway/projects', input, options);
+  /** `GET /v1/organisations/:org/integrations/:integrationId/railway-projects`. Requires `integrations:read`. */
+  listRailwayProjects(
+    input: IntegrationInput,
+    options?: RequestOptions,
+  ): Promise<RailwayProjectListResponse> {
+    return this.integrationGet<RailwayProjectListResponse>('railway-projects', input, options)
   }
 
   // -- Vercel ---------------------------------------------------------------
-  registerVercel(input: OrgInput & Record<string, unknown>, options?: RequestOptions): Promise<unknown> {
-    return this.providerPost('vercel/register', input, options);
+  /** `POST /v1/organisations/:org/integrations/vercel/register`. Requires `integrations:manage`. */
+  registerVercel(
+    input: OrgInput & RegisterVercelInput,
+    options?: RequestOptions,
+  ): Promise<RegisterVercelResponse> {
+    return this.providerPost<RegisterVercelResponse>('vercel/register', input, options)
   }
-  listVercelProjects(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.providerGet('vercel/projects', input, options);
+  /** `GET /v1/organisations/:org/integrations/:integrationId/projects`. Requires `integrations:read`. */
+  listVercelProjects(
+    input: IntegrationInput,
+    options?: RequestOptions,
+  ): Promise<VercelProjectListResponse> {
+    return this.integrationGet<VercelProjectListResponse>('projects', input, options)
   }
 
   // -- GitHub ---------------------------------------------------------------
-  githubInstallUrl(input: OrgInput = {}, options?: RequestOptions): Promise<{ url: string }> {
-    return this.providerPost('github/install-url', input, options);
+  /**
+   * `POST /v1/organisations/:org/integrations/github/install-url`. The URL is
+   * at `data.url`. Requires `integrations:manage`.
+   */
+  githubInstallUrl(
+    input: OrgInput = {},
+    options?: RequestOptions,
+  ): Promise<GitHubInstallUrlResponse> {
+    return this.providerPost<GitHubInstallUrlResponse>('github/install-url', input, options)
   }
-  githubCallback(input: OrgInput & { installationId: string; setupAction: string }, options?: RequestOptions): Promise<unknown> {
-    const org = this.resolveOrg(input);
-    return this.request({
-      method: 'POST',
-      path: `${base(org)}/github/callback`,
-      body: { installationId: input.installationId, setupAction: input.setupAction },
-    }, options);
+  /**
+   * `POST /v1/organisations/:org/integrations/github/callback` - completes a
+   * GitHub App install. `state` is the value {@link githubInstallUrl} returned.
+   * Requires `integrations:manage`.
+   */
+  githubCallback(
+    input: OrgInput & { installationId: number; state: string; setupAction?: string },
+    options?: RequestOptions,
+  ): Promise<GitHubCallbackResponse> {
+    const org = this.resolveOrg(input)
+    const body: Record<string, unknown> = {
+      installationId: input.installationId,
+      state: input.state,
+    }
+    if (input.setupAction !== undefined) body['setupAction'] = input.setupAction
+    return this.request<GitHubCallbackResponse>(
+      {
+        method: 'POST',
+        path: `${base(org)}/github/callback`,
+        body,
+      },
+      options,
+    )
   }
-  listRepositories(input: OrgInput = {}, options?: RequestOptions): Promise<unknown> {
-    return this.providerGet('github/repositories', input, options);
+  /** `GET /v1/organisations/:org/integrations/:integrationId/repositories`. Requires `integrations:read`. */
+  listRepositories(
+    input: IntegrationInput & { q?: string; limit?: number },
+    options?: RequestOptions,
+  ): Promise<GitHubRepositoryListResponse> {
+    const query: Record<string, string> = {}
+    if (input.q !== undefined) query['q'] = input.q
+    if (input.limit !== undefined) query['limit'] = String(input.limit)
+    return this.integrationGet<GitHubRepositoryListResponse>('repositories', input, options, query)
   }
 
   // -- helpers --------------------------------------------------------------
 
-  private providerGet<T = unknown>(
+  private integrationGet<T>(
     suffix: string,
-    input: OrgInput,
+    input: IntegrationInput,
     options?: RequestOptions,
-    query?: Record<string, string | number>,
+    query?: Record<string, string>,
   ): Promise<T> {
-    const org = this.resolveOrg(input);
-    return this.request<T>({ method: 'GET', path: `${base(org)}/${suffix}`, query }, options);
+    const org = this.resolveOrg(input)
+    return this.request<T>(
+      { method: 'GET', path: `${base(org)}/${enc(input.integrationId)}/${suffix}`, query },
+      options,
+    )
   }
 
-  private providerPost<T = unknown>(suffix: string, input: OrgInput & Record<string, unknown>, options?: RequestOptions): Promise<T> {
-    const org = this.resolveOrg(input);
-    const { organisation: _o, ...body } = input;
-    void _o;
-    return this.request<T>({ method: 'POST', path: `${base(org)}/${suffix}`, body }, options);
+  private providerPost<T>(
+    suffix: string,
+    input: OrgInput & object,
+    options?: RequestOptions,
+  ): Promise<T> {
+    const org = this.resolveOrg(input)
+    const { organisation: _o, ...body } = input
+    void _o
+    return this.request<T>({ method: 'POST', path: `${base(org)}/${suffix}`, body }, options)
   }
 }

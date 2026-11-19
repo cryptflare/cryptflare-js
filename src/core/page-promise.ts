@@ -1,4 +1,4 @@
-import type { CursorPage } from './pagination';
+import type { CursorPage } from './pagination'
 
 /**
  * A `Promise<CursorPage<T>>` that also implements `AsyncIterable<T>`.
@@ -20,16 +20,16 @@ import type { CursorPage } from './pagination';
  * `Promise<AsyncIterable>` is not itself iterable.
  */
 export class PagePromise<T> extends Promise<CursorPage<T>> implements AsyncIterable<T> {
-  static get [Symbol.species]() {
+  static override get [Symbol.species]() {
     // Inherited Promise methods (`then`, `catch`, `finally`) build new
     // promises - returning the base Promise constructor here keeps them
     // as plain promises, not PagePromise. The page promise contract only
     // applies to the original list() call.
-    return Promise;
+    return Promise
   }
 
   async *[Symbol.asyncIterator](): AsyncGenerator<T> {
-    const page = await this;
-    yield* page;
+    const page = await this
+    yield* page
   }
 }

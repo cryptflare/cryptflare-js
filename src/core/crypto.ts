@@ -26,23 +26,26 @@
  *     Workers, Deno, Bun, and modern browsers. No Node-specific APIs.
  */
 
-const ENVELOPE_PREFIX = 'cfenv:v1:';
-const ALG_GCM = 'AES-GCM';
-const ALG_KW = 'AES-KW';
+import { ConfigurationError, EnvelopeError } from './errors'
+import { isRecord } from './guards'
+
+const ENVELOPE_PREFIX = 'cfenv:v1:'
+const ALG_GCM = 'AES-GCM'
+const ALG_KW = 'AES-KW'
 
 export type Envelope = {
   /** Schema version. Bump when the wire format changes. */
-  version: 1;
+  version: 1
   /** AES-256-GCM ciphertext (base64). */
-  ct: string;
+  ct: string
   /** Initialisation vector (base64, 12 bytes). */
-  iv: string;
+  iv: string
   /** Wrapped data key (base64). */
-  wdk: string;
+  wdk: string
   /** Identifier for the master key that wrapped the DK. Lets a Keyring
    *  rotate keys without breaking older secrets. */
-  kid: string;
-};
+  kid: string
+}
 
 /**
  * Wraps and unwraps the per-secret data key. `LocalKeyring` ships in the
@@ -51,11 +54,11 @@ export type Envelope = {
  */
 export interface Keyring {
   /** Stable identifier so envelopes can find their key on unseal. */
-  readonly kid: string;
+  readonly kid: string
   /** Wrap a 256-bit raw data key. */
-  wrap(rawDk: ArrayBuffer): Promise<ArrayBuffer>;
+  wrap(rawDk: ArrayBuffer): Promise<ArrayBuffer>
   /** Unwrap a previously wrapped data key. */
-  unwrap(wrapped: ArrayBuffer): Promise<ArrayBuffer>;
+  unwrap(wrapped: ArrayBuffer): Promise<ArrayBuffer>
 }
 
 /**
@@ -65,36 +68,34 @@ export interface Keyring {
  * Manager, etc.) and just need a thin wrapping primitive.
  */
 export class LocalKeyring implements Keyring {
-  readonly kid: string;
-  private readonly key: Promise<CryptoKey>;
+  readonly kid: string
+  private readonly key: Promise<CryptoKey>
 
   constructor(input: {
     /** Master key as either 32 raw bytes (Uint8Array) or a base64-encoded
      *  string. Anything else is rejected to avoid common shape mistakes. */
-    masterKey: Uint8Array | string;
+    masterKey: Uint8Array | string
     /** Identifier baked into envelopes so different keyrings can co-exist. */
-    kid?: string;
+    kid?: string
   }) {
-    this.kid = input.kid ?? 'local-1';
-    const raw = typeof input.masterKey === 'string'
-      ? base64Decode(input.masterKey)
-      : input.masterKey;
+    this.kid = input.kid ?? 'local-1'
+    const raw =
+      typeof input.masterKey === 'string' ? base64Decode(input.masterKey) : input.masterKey
     if (raw.byteLength !== 32) {
-      throw new Error(`LocalKeyring master key must be 32 bytes; got ${raw.byteLength}`);
+      throw new ConfigurationError(
+        `LocalKeyring master key must be 32 bytes; got ${raw.byteLength}`,
+      )
     }
-    this.key = crypto.subtle.importKey(
-      'raw',
-      bufferOf(raw),
-      { name: ALG_KW, length: 256 },
-      false,
-      ['wrapKey', 'unwrapKey'],
-    );
+    this.key = crypto.subtle.importKey('raw', bufferOf(raw), { name: ALG_KW, length: 256 }, false, [
+      'wrapKey',
+      'unwrapKey',
+    ])
   }
 
   async wrap(rawDk: ArrayBuffer): Promise<ArrayBuffer> {
-    const dkKey = await crypto.subtle.importKey('raw', rawDk, ALG_GCM, true, ['encrypt']);
-    const wrapped = await crypto.subtle.wrapKey('raw', dkKey, await this.key, ALG_KW);
-    return wrapped;
+    const dkKey = await crypto.subtle.importKey('raw', rawDk, ALG_GCM, true, ['encrypt'])
+    const wrapped = await crypto.subtle.wrapKey('raw', dkKey, await this.key, ALG_KW)
+    return wrapped
   }
 
   async unwrap(wrapped: ArrayBuffer): Promise<ArrayBuffer> {
@@ -106,10 +107,12 @@ export class LocalKeyring implements Keyring {
       ALG_GCM,
       true,
       ['decrypt'],
-    );
-    // `exportKey('raw', ...)` is always an ArrayBuffer at runtime; the
-    // type union with JsonWebKey only applies to format='jwk'.
-    return (await crypto.subtle.exportKey('raw', dkKey)) as ArrayBuffer;
+    )
+    const raw = await crypto.subtle.exportKey('raw', dkKey)
+    // 'raw' always yields bytes; the JsonWebKey arm of the union is 'jwk' only.
+    if (!(raw instanceof ArrayBuffer))
+      throw new EnvelopeError('unwrapped data key was not raw bytes')
+    return raw
   }
 }
 
@@ -119,11 +122,15 @@ export class LocalKeyring implements Keyring {
  * pass as the secret value.
  */
 export async function seal(plaintext: string, keyring: Keyring): Promise<string> {
-  const rawDk = crypto.getRandomValues(new Uint8Array(32));
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const dkKey = await crypto.subtle.importKey('raw', bufferOf(rawDk), ALG_GCM, false, ['encrypt']);
-  const ct = await crypto.subtle.encrypt({ name: ALG_GCM, iv: bufferOf(iv) }, dkKey, new TextEncoder().encode(plaintext));
-  const wdk = await keyring.wrap(bufferOf(rawDk));
+  const rawDk = crypto.getRandomValues(new Uint8Array(32))
+  const iv = crypto.getRandomValues(new Uint8Array(12))
+  const dkKey = await crypto.subtle.importKey('raw', bufferOf(rawDk), ALG_GCM, false, ['encrypt'])
+  const ct = await crypto.subtle.encrypt(
+    { name: ALG_GCM, iv: bufferOf(iv) },
+    dkKey,
+    new TextEncoder().encode(plaintext),
+  )
+  const wdk = await keyring.wrap(bufferOf(rawDk))
 
   const envelope: Envelope = {
     version: 1,
@@ -131,8 +138,8 @@ export async function seal(plaintext: string, keyring: Keyring): Promise<string>
     iv: base64Encode(iv),
     wdk: base64Encode(new Uint8Array(wdk)),
     kid: keyring.kid,
-  };
-  return ENVELOPE_PREFIX + JSON.stringify(envelope);
+  }
+  return ENVELOPE_PREFIX + JSON.stringify(envelope)
 }
 
 /**
@@ -142,47 +149,80 @@ export async function seal(plaintext: string, keyring: Keyring): Promise<string>
  */
 export async function unseal(envelopeStr: string, keyring: Keyring): Promise<string> {
   if (!envelopeStr.startsWith(ENVELOPE_PREFIX)) {
-    throw new Error('not an envelope-encrypted value');
+    throw new EnvelopeError('not an envelope-encrypted value')
   }
-  const env = JSON.parse(envelopeStr.slice(ENVELOPE_PREFIX.length)) as Envelope;
-  if (env.version !== 1) throw new Error(`unsupported envelope version ${env.version}`);
+  const env = parseEnvelope(envelopeStr.slice(ENVELOPE_PREFIX.length))
   if (env.kid !== keyring.kid) {
-    throw new Error(`envelope was sealed with kid=${env.kid}, keyring is kid=${keyring.kid}`);
+    throw new EnvelopeError(
+      `envelope was sealed with kid=${env.kid}, keyring is kid=${keyring.kid}`,
+    )
   }
-  const rawDk = await keyring.unwrap(bufferOf(base64Decode(env.wdk)));
-  const dkKey = await crypto.subtle.importKey('raw', rawDk, ALG_GCM, false, ['decrypt']);
-  const plain = await crypto.subtle.decrypt(
-    { name: ALG_GCM, iv: bufferOf(base64Decode(env.iv)) },
-    dkKey,
-    bufferOf(base64Decode(env.ct)),
-  );
-  return new TextDecoder().decode(plain);
+  try {
+    const rawDk = await keyring.unwrap(bufferOf(base64Decode(env.wdk)))
+    const dkKey = await crypto.subtle.importKey('raw', rawDk, ALG_GCM, false, ['decrypt'])
+    const plain = await crypto.subtle.decrypt(
+      { name: ALG_GCM, iv: bufferOf(base64Decode(env.iv)) },
+      dkKey,
+      bufferOf(base64Decode(env.ct)),
+    )
+    return new TextDecoder().decode(plain)
+  } catch (cause) {
+    if (cause instanceof EnvelopeError) throw cause
+    throw new EnvelopeError(
+      'envelope could not be decrypted (wrong key or tampered ciphertext)',
+      cause,
+    )
+  }
+}
+
+/** Parses and shape-checks the JSON half of an envelope. */
+function parseEnvelope(json: string): Envelope {
+  let raw: unknown
+  try {
+    raw = JSON.parse(json)
+  } catch (cause) {
+    throw new EnvelopeError('envelope is not valid JSON', cause)
+  }
+  if (!isRecord(raw)) {
+    throw new EnvelopeError('envelope must be a JSON object')
+  }
+  if (raw['version'] !== 1) {
+    throw new EnvelopeError(`unsupported envelope version ${String(raw['version'])}`)
+  }
+  const field = (name: 'ct' | 'iv' | 'wdk' | 'kid'): string => {
+    const value = raw[name]
+    if (typeof value !== 'string' || value.length === 0) {
+      throw new EnvelopeError(`envelope field "${name}" is missing or not a string`)
+    }
+    return value
+  }
+  return { version: 1, ct: field('ct'), iv: field('iv'), wdk: field('wdk'), kid: field('kid') }
 }
 
 /** True when `s` looks like a string sealed by `seal()`. */
 export function isEnvelope(s: string): boolean {
-  return s.startsWith(ENVELOPE_PREFIX);
+  return s.startsWith(ENVELOPE_PREFIX)
 }
 
 // -- helpers ----------------------------------------------------------
 
 function bufferOf(input: Uint8Array | ArrayBuffer): ArrayBuffer {
-  if (input instanceof ArrayBuffer) return input;
+  if (input instanceof ArrayBuffer) return input
   // Always copy into a fresh ArrayBuffer so SharedArrayBuffer or offset
   // views never reach Web Crypto (which rejects them on some runtimes).
-  return input.buffer.slice(input.byteOffset, input.byteOffset + input.byteLength) as ArrayBuffer;
+  return input.slice().buffer
 }
 
 function base64Encode(bytes: Uint8Array): string {
   // Same logic across Node, browsers, Workers, Bun, Deno.
-  let s = '';
-  for (let i = 0; i < bytes.byteLength; i++) s += String.fromCharCode(bytes[i]!);
-  return globalThis.btoa(s);
+  let s = ''
+  for (const byte of bytes) s += String.fromCharCode(byte)
+  return globalThis.btoa(s)
 }
 
 function base64Decode(b64: string): Uint8Array {
-  const s = globalThis.atob(b64);
-  const out = new Uint8Array(s.length);
-  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
-  return out;
+  const s = globalThis.atob(b64)
+  const out = new Uint8Array(s.length)
+  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i)
+  return out
 }

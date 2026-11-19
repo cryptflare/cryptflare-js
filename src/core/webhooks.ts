@@ -14,15 +14,15 @@
  * unchanged on Node, Bun, Deno, Cloudflare Workers, and modern browsers.
  */
 
-import { CryptFlareError } from './errors';
-import type { WebhookEvent } from '../types/webhooks';
+import { CryptFlareError } from './errors'
+import type { WebhookEvent } from '../types/webhooks'
 
-const HEADER_NAME = 'x-cryptflare-signature';
-const DEFAULT_TOLERANCE_SECONDS = 300; // 5 minutes either direction.
+const HEADER_NAME = 'x-cryptflare-signature'
+const DEFAULT_TOLERANCE_SECONDS = 300 // 5 minutes either direction.
 
 export class WebhookVerificationError extends CryptFlareError {
   constructor(message: string, code = 'webhook_signature_invalid') {
-    super({ message, code });
+    super({ message, code })
   }
 }
 
@@ -32,13 +32,13 @@ export type VerifyOptions = {
    * verifier's clock, in seconds. Default 300 (5 minutes). Set to `0` to
    * disable replay protection (do not).
    */
-  toleranceSeconds?: number;
+  toleranceSeconds?: number
   /**
    * Override the current time. Used by tests to feed deterministic input
    * without monkey-patching `Date.now`.
    */
-  now?: () => number;
-};
+  now?: () => number
+}
 
 /**
  * Verifies the signature header on a webhook delivery.
@@ -64,64 +64,70 @@ export async function verifyWebhook(
   options: VerifyOptions = {},
 ): Promise<WebhookEvent> {
   if (!header) {
-    throw new WebhookVerificationError(`Missing ${HEADER_NAME} header`, 'webhook_signature_missing');
+    throw new WebhookVerificationError(`Missing ${HEADER_NAME} header`, 'webhook_signature_missing')
   }
 
-  const parts = parseHeader(header);
+  const parts = parseHeader(header)
   if (!parts.timestamp || parts.signatures.length === 0) {
-    throw new WebhookVerificationError(`Malformed ${HEADER_NAME} header`, 'webhook_signature_malformed');
+    throw new WebhookVerificationError(
+      `Malformed ${HEADER_NAME} header`,
+      'webhook_signature_malformed',
+    )
   }
 
-  const tolerance = options.toleranceSeconds ?? DEFAULT_TOLERANCE_SECONDS;
-  const now = options.now ? options.now() : Math.floor(Date.now() / 1000);
+  const tolerance = options.toleranceSeconds ?? DEFAULT_TOLERANCE_SECONDS
+  const now = options.now ? options.now() : Math.floor(Date.now() / 1000)
   if (tolerance > 0 && Math.abs(now - parts.timestamp) > tolerance) {
     throw new WebhookVerificationError(
       `Signature timestamp ${parts.timestamp} is outside the ${tolerance}s tolerance window`,
       'webhook_signature_expired',
-    );
+    )
   }
 
-  const signed = `${parts.timestamp}.${body}`;
-  const expected = await hmacSha256Hex(secret, signed);
-  const matched = parts.signatures.some((sig) => constantTimeEqual(sig, expected));
+  const signed = `${parts.timestamp}.${body}`
+  const expected = await hmacSha256Hex(secret, signed)
+  const matched = parts.signatures.some((sig) => constantTimeEqual(sig, expected))
   if (!matched) {
-    throw new WebhookVerificationError('Signature does not match payload', 'webhook_signature_mismatch');
+    throw new WebhookVerificationError(
+      'Signature does not match payload',
+      'webhook_signature_mismatch',
+    )
   }
 
   try {
-    return JSON.parse(body) as WebhookEvent;
+    return JSON.parse(body) as WebhookEvent
   } catch {
-    throw new WebhookVerificationError('Body is not valid JSON', 'webhook_body_invalid');
+    throw new WebhookVerificationError('Body is not valid JSON', 'webhook_body_invalid')
   }
 }
 
 function parseHeader(header: string): { timestamp: number; signatures: string[] } {
-  const parts: { timestamp: number; signatures: string[] } = { timestamp: NaN, signatures: [] };
+  const parts: { timestamp: number; signatures: string[] } = { timestamp: NaN, signatures: [] }
   for (const segment of header.split(',')) {
-    const [k, v] = segment.split('=', 2);
-    if (!k || !v) continue;
-    const key = k.trim();
-    const value = v.trim();
-    if (key === 't') parts.timestamp = Number(value);
-    else if (key === 'v1') parts.signatures.push(value);
+    const [k, v] = segment.split('=', 2)
+    if (!k || !v) continue
+    const key = k.trim()
+    const value = v.trim()
+    if (key === 't') parts.timestamp = Number(value)
+    else if (key === 'v1') parts.signatures.push(value)
   }
-  return parts;
+  return parts
 }
 
 async function hmacSha256Hex(secret: string, payload: string): Promise<string> {
-  const enc = new TextEncoder();
+  const enc = new TextEncoder()
   const key = await crypto.subtle.importKey(
     'raw',
     enc.encode(secret),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign'],
-  );
-  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(payload));
-  const bytes = new Uint8Array(sig);
-  let out = '';
-  for (const b of bytes) out += b.toString(16).padStart(2, '0');
-  return out;
+  )
+  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(payload))
+  const bytes = new Uint8Array(sig)
+  let out = ''
+  for (const b of bytes) out += b.toString(16).padStart(2, '0')
+  return out
 }
 
 /**
@@ -130,8 +136,8 @@ async function hmacSha256Hex(secret: string, payload: string): Promise<string> {
  * timing. This walks every byte and ORs all differences together.
  */
 function constantTimeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
+  if (a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  return diff === 0
 }

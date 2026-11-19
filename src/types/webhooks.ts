@@ -137,9 +137,9 @@ export const WEBHOOK_EVENT_TYPES = [
   // Resource tags
   'tag.added',
   'tag.removed',
-] as const;
+] as const
 
-export type WebhookEventType = typeof WEBHOOK_EVENT_TYPES[number];
+export type WebhookEventType = (typeof WEBHOOK_EVENT_TYPES)[number]
 
 /**
  * Per-event payload shapes for the events whose schemas are stable.
@@ -147,33 +147,33 @@ export type WebhookEventType = typeof WEBHOOK_EVENT_TYPES[number];
  * generic `WebhookEvent<T>` below.
  */
 export type WebhookEventPayloads = {
-  'secret.created': { key: string; podId: string | null; version: number };
-  'secret.revealed': { key: string; version: number };
-  'secret.rotated': { key: string; version: number; previousVersion: number };
-  'secret.rolled_back': { key: string; version: number; rolledBackTo: number };
-  'secret.moved': { key: string; fromPodId: string | null; toPodId: string | null };
-  'secret.deleted': { key: string; version: number };
-  'secret.locked': { key: string };
-  'secret.unlocked': { key: string };
-  'secret.auto_rotated': { key: string; version: number; rotationPolicyId: string };
-  'pod.created': { id: string; name: string; slug: string; parentId: string | null };
-  'pod.updated': { id: string; name?: string; slug?: string };
-  'pod.deleted': { id: string };
-  'workspace.created': { id: string; name: string; slug: string };
-  'workspace.deleted': { id: string };
-  'token.created': { id: string; name: string; tokenPrefix: string; scopes: string[] };
-  'token.revoked': { id: string };
-  'service_token.created': { id: string; name: string; tokenPrefix: string; workspaceId: string };
-  'service_token.revoked': { id: string };
-  'sync.triggered': { connectionId: string; secretCount: number };
-  'sync.completed': { connectionId: string; secretCount: number; durationMs: number };
-  'sync.failed': { connectionId: string; error: string };
-  'dynamic_lease.issued': { leaseId: string; provider: string; ttlSeconds: number };
-  'dynamic_lease.expired': { leaseId: string };
-  'dynamic_lease.revoked': { leaseId: string; reason?: string };
-  'compliance.report_generated': { reportId: string; framework: string };
-  'event_subscription.auto_disabled': { subscriptionId: string; consecutiveFailures: number };
-};
+  'secret.created': { key: string; podId: string | null; version: number }
+  'secret.revealed': { key: string; version: number }
+  'secret.rotated': { key: string; version: number; previousVersion: number }
+  'secret.rolled_back': { key: string; version: number; rolledBackTo: number }
+  'secret.moved': { key: string; fromPodId: string | null; toPodId: string | null }
+  'secret.deleted': { key: string; version: number }
+  'secret.locked': { key: string }
+  'secret.unlocked': { key: string }
+  'secret.auto_rotated': { key: string; version: number; rotationPolicyId: string }
+  'pod.created': { id: string; name: string; slug: string; parentId: string | null }
+  'pod.updated': { id: string; name?: string; slug?: string }
+  'pod.deleted': { id: string }
+  'workspace.created': { id: string; name: string; slug: string }
+  'workspace.deleted': { id: string }
+  'token.created': { id: string; name: string; tokenPrefix: string; scopes: string[] }
+  'token.revoked': { id: string }
+  'service_token.created': { id: string; name: string; tokenPrefix: string; workspaceId: string }
+  'service_token.revoked': { id: string }
+  'sync.triggered': { connectionId: string; secretCount: number }
+  'sync.completed': { connectionId: string; secretCount: number; durationMs: number }
+  'sync.failed': { connectionId: string; error: string }
+  'dynamic_lease.issued': { leaseId: string; provider: string; ttlSeconds: number }
+  'dynamic_lease.expired': { leaseId: string }
+  'dynamic_lease.revoked': { leaseId: string; reason?: string }
+  'compliance.report_generated': { reportId: string; framework: string }
+  'event_subscription.auto_disabled': { subscriptionId: string; consecutiveFailures: number }
+}
 
 /**
  * The discriminated union returned by `verifyWebhook`. Switch on
@@ -182,30 +182,30 @@ export type WebhookEventPayloads = {
 export type WebhookEvent = {
   [K in WebhookEventType]: {
     /** Stable event identifier (`evt_...`). */
-    id: string;
+    id: string
     /** Discriminator. Switch on this. */
-    type: K;
+    type: K
     /** ISO 8601 timestamp the event was emitted by the API. */
-    occurredAt: string;
+    occurredAt: string
     /** Organisation that owns the resource. */
-    organisation: string;
+    organisation: string
     /** Workspace slug, if scoped. */
-    workspace?: string;
+    workspace?: string
     /** Environment slug, if scoped. */
-    environment?: string;
+    environment?: string
     /** Caller that produced the event. */
     actor: {
-      type: 'user' | 'service_token' | 'system';
-      id: string;
-      email?: string;
-    };
+      type: 'user' | 'service_token' | 'system'
+      id: string
+      email?: string
+    }
     /** Per-event payload. Falls back to a free-form object for events
      *  whose schemas are not yet locked. */
-    data: K extends keyof WebhookEventPayloads ? WebhookEventPayloads[K] : Record<string, unknown>;
-  };
-}[WebhookEventType];
+    data: K extends keyof WebhookEventPayloads ? WebhookEventPayloads[K] : Record<string, unknown>
+  }
+}[WebhookEventType]
 
 /** True when `e.type` is a recognised event type. */
 export function isKnownEventType(value: string): value is WebhookEventType {
-  return (WEBHOOK_EVENT_TYPES as readonly string[]).includes(value);
+  return WEBHOOK_EVENT_TYPES.some((type) => type === value)
 }
