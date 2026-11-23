@@ -1,5 +1,17 @@
 # @cryptflare/sdk
 
+## 1.3.1
+
+### Patch Changes
+
+- 89c80c3: Add encrypted local env files. `cf env encrypt <file...>` replaces each value with `cf:v1:<keyRef>:<nonce>:<ciphertext>` (AES-256-GCM, bound to the environment and the variable name) and keeps comments, blank lines, quoting, `export` prefixes, ordering and CRLF line endings; `--rotate` moves to the next key version and `--from-vault` rewrites values from CryptFlare. `cf env decrypt <file>` prints the plaintext (or `--format shell|json`) and writes a file only with `--out`. `cf env status` shows which files and values are encrypted without touching the network. `cf env migrate` plans the move for a whole repository (dotenv files, `.dev.vars`, `.envrc`, `.flaskenv`, docker-compose `env_file` targets, Streamlit and Dynaconf TOML, Firebase and .NET JSON, Terraform tfvars, `config/master.key`, `.npmrc` / `.yarnrc.yml` tokens), lists templates and secret-looking files to review by hand, warns about files whose plaintext is in git history, and with `--yes` pushes the values, rewrites the files and binds them in `.cryptflare.json` with `"encrypted": true`.
+
+  `cf env migrate` takes `-w, --workspace <slug|id>` (an existing workspace; one that does not exist is refused unless `--create-workspace` is given), `-e, --environment <slug>` (every file into one environment) and `--group per-file|per-app|single`. With no `-w` it uses the organisation's only workspace when none is named after the folder. The plan, dry run included, reads the plan limits from the API (the subscription, or `GET /v1/organisations/:org/usage` for logins without `billing:read`), marks each file the plan has no room for, and prints the flag that would fit. A variable that two files of one environment define with different values is refused, naming the variable and files but never the values. With anything in the way, `--yes` changes nothing. `cf env decrypt` now gives each value back in its original quote style, and `cf run` forwards SIGTERM to a child that holds decrypted local values instead of leaving it running.
+
+  `cf run` now decrypts the encrypted files bound around the current directory in memory with one key request per environment, adds `--env-file` and `CLOUDFLARE_INCLUDE_PROCESS_ENV` to a direct `wrangler dev`, and with `--materialize` writes plaintext for files a tool reads itself only while the command runs (restored on exit and on Ctrl-C). It fails closed when the key cannot be fetched. `cf sync`, `cf push` and `cf sync init` decrypt encrypted files in memory and write ciphertext back, so ciphertext is never uploaded as a value; the sync engine leaves TOML, JSON and tfvars bindings alone. Needs an API that serves `GET .../environments/:env/local-key`.
+
+  SDK: add the error codes the API now answers with, so `err.code` can be compared against `ERRORS` without a string: `BILLING_COUPON_MISMATCH`, `BILLING_ALREADY_SUBSCRIBED`, `BILLING_NOT_A_GRANT` and `BILLING_NO_SUBSCRIPTION` (plan changes on an organisation with a complimentary plan from CryptFlare staff), and `BACKUP_RESIDENCY_REFUSED`.
+
 ## 1.3.0
 
 ### Minor Changes

@@ -57,12 +57,16 @@ export type MeResponse = {
         role: string;
     }[];
     user: {
+        avatarSeed: string | null;
         avatarUrl: string | null;
         email: string;
         id: string;
         name: string | null;
         totpEnabled: boolean;
     };
+};
+export type AvatarShuffleResponse = {
+    avatarSeed: string;
 };
 export type TotpSetupResponse = {
     otpauthUri: string;

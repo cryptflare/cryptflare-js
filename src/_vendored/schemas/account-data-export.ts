@@ -739,6 +739,7 @@ export type DataExportResponse = {
         to_user_id: string | null;
     }[];
     user: {
+        avatar_seed: string | null;
         avatar_url: string | null;
         created_at: string;
         email: string;

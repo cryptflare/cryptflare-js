@@ -2,6 +2,7 @@
 // Plain types materialised from the Zod schemas - do not edit by hand.
 
 export type MemberItem = {
+    avatarSeed: string | null;
     avatarUrl: string | null;
     email: string;
     id: string;
@@ -70,6 +71,7 @@ export type MemberInvitationResentResponse = {
 };
 export type MemberListResponse = {
     data: {
+        avatarSeed: string | null;
         avatarUrl: string | null;
         email: string;
         id: string;
