@@ -36,6 +36,13 @@ export type DataExportResponse = {
         organisation_slug: string;
         role: string;
     }[];
+    passkeys: {
+        created_at: string;
+        id: string;
+        last_used_at: string | null;
+        name: string;
+        synced: boolean;
+    }[];
     preferences: {
         emailNotifications?: boolean | undefined;
         securityAlerts?: boolean | undefined;

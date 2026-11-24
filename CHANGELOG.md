@@ -1,5 +1,11 @@
 # @cryptflare/sdk
 
+## 1.3.2
+
+### Patch Changes
+
+- b0cfc44: `DataExportResponse` now lists the account's passkeys (`passkeys`: id, name, synced, last used and added dates). Public keys and credential ids are not exported.
+
 ## 1.3.1
 
 ### Patch Changes

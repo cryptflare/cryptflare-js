@@ -8,7 +8,7 @@ export type CreateConfigBody = {
     maxLeasesPerIdentity: number;
     maxTtlSeconds: number;
     name: string;
-    provider: "aws_iam" | "azure_sp" | "destroy_network" | "mock";
+    provider: "aws_iam" | "azure_sp" | "destroy_network" | "github_app" | "mock";
     providerConfig: Record<string, unknown>;
     rootCredentials: Record<string, unknown>;
     systemMaxTtlSeconds: number;
@@ -97,7 +97,7 @@ export type DynamicAnalyticsResponse = {
         }[];
         providerUsage: {
             count: number;
-            provider: "aws_iam" | "azure_sp" | "destroy_network" | "mock";
+            provider: "aws_iam" | "azure_sp" | "destroy_network" | "github_app" | "mock";
         }[];
         revokeBreakdown: {
             count: number;
@@ -113,7 +113,7 @@ export type DynamicConfigCreatedResponse = {
         id: string;
         maxTtlSeconds: number;
         name: string;
-        provider: "aws_iam" | "azure_sp" | "destroy_network" | "mock";
+        provider: "aws_iam" | "azure_sp" | "destroy_network" | "github_app" | "mock";
         systemMaxTtlSeconds: number;
     };
 };
@@ -130,7 +130,7 @@ export type DynamicConfigListResponse = {
         maxTtlSeconds: number;
         name: string;
         organisationId: string;
-        provider: "aws_iam" | "azure_sp" | "destroy_network" | "mock";
+        provider: "aws_iam" | "azure_sp" | "destroy_network" | "github_app" | "mock";
         providerConfig: Record<string, unknown>;
         systemMaxTtlSeconds: number;
         updatedAt: string;
@@ -150,7 +150,7 @@ export type DynamicConfigResponse = {
         maxTtlSeconds: number;
         name: string;
         organisationId: string;
-        provider: "aws_iam" | "azure_sp" | "destroy_network" | "mock";
+        provider: "aws_iam" | "azure_sp" | "destroy_network" | "github_app" | "mock";
         providerConfig: Record<string, unknown>;
         systemMaxTtlSeconds: number;
         updatedAt: string;
@@ -167,7 +167,7 @@ export type DynamicConfigValidationResponse = {
     data: {
         checkedAt: string;
         error: string | null;
-        provider: "aws_iam" | "azure_sp" | "destroy_network" | "mock";
+        provider: "aws_iam" | "azure_sp" | "destroy_network" | "github_app" | "mock";
         valid: boolean;
     };
 };

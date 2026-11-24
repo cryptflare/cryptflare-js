@@ -28,6 +28,7 @@ const here = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(here, '..')
 const OUT_DIR = resolve(ROOT, 'src', '_generated')
 const OUT_FILE = resolve(OUT_DIR, 'openapi.d.ts')
+const SPEC_FETCH_TIMEOUT_MS = 30_000
 
 const args = parseArgs(process.argv.slice(2))
 
@@ -80,7 +81,7 @@ async function loadSpec(): Promise<unknown> {
     process.env.CRYPTFLARE_OPENAPI_URL ??
     `${process.env.CRYPTFLARE_API_URL ?? 'https://api.cryptflare.com'}/v1/openapi.json`
   log(`[codegen] fetching ${url}`)
-  const res = await fetch(url)
+  const res = await fetch(url, { signal: AbortSignal.timeout(SPEC_FETCH_TIMEOUT_MS) })
   if (!res.ok) {
     throw new Error(`Could not fetch OpenAPI spec from ${url}: HTTP ${res.status}`)
   }
