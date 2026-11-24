@@ -1,5 +1,11 @@
 # @cryptflare/sdk
 
+## 1.3.3
+
+### Patch Changes
+
+- 943c2fd: Add the `BILLING_UNAVAILABLE` error code (503): billing is off because the API's Stripe settings may not be used in that environment.
+
 ## 1.3.2
 
 ### Patch Changes
